@@ -1,10 +1,10 @@
 package fr.sorbonne_u.pubsub;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 public class BasicProperties {
-    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties = new Hashtable<>();
 
     public Object put(String key, String value) {
         return properties.put(key, value);
