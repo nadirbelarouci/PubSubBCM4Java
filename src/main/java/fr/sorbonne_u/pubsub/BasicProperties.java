@@ -1,45 +1,60 @@
 package fr.sorbonne_u.pubsub;
 
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BasicProperties {
-    private Map<String, Object> properties = new Hashtable<>();
+    private Map<String, Object> properties = new ConcurrentHashMap<>();
 
-    public Object put(String key, String value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, String value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Byte value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Byte value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Short value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Short value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Character value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Character value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Integer value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Integer value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Long value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Long value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Float value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Float value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Double value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Double value) {
+        properties.put(key, value);
+        return this;
     }
 
-    public Object put(String key, Boolean value) {
-        return properties.put(key, value);
+    public BasicProperties put(String key, Boolean value) {
+        properties.put(key, value);
+        return this;
     }
 
+    @Override
+    public String toString() {
+        return "BasicProperties{" +
+                "properties=" + properties +
+                '}';
+    }
 }
