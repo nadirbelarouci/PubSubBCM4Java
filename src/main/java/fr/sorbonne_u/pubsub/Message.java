@@ -8,17 +8,23 @@ public class Message {
     private final String owner;
     private final Object content;
     private final BasicProperties basicProperties;
+    private final Topic topic;
 
-    public Message(String id, long timestamp, String owner, Object content, BasicProperties basicProperties) {
+    private Message(String id, long timestamp, String owner, Object content, Topic topic, BasicProperties basicProperties) {
         this.id = id;
         this.timestamp = timestamp;
         this.owner = owner;
         this.content = content;
         this.basicProperties = basicProperties;
+        this.topic = topic;
     }
 
-    public static MessageBuilder newBuilder() {
-        return new MessageBuilder();
+    public static MessageBuilder newBuilder(Topic topic) {
+        return new MessageBuilder(topic);
+    }
+
+    public static MessageBuilder newBuilder(String topic) {
+        return new MessageBuilder(topic);
     }
 
     public String getId() {
@@ -69,15 +75,31 @@ public class Message {
         return Objects.hash(getId(), getTimestamp(), getOwner(), getContent(), getBasicProperties());
     }
 
+
+    public Topic getTopic() {
+        return topic;
+    }
+
+
     public static class MessageBuilder {
         private String id;
         private long timestamp = -1;
         private String owner;
         private Object content;
-        private BasicProperties basicProperties;
+        private Topic topic;
+        private BasicProperties basicProperties = new BasicProperties();
 
-        private MessageBuilder() {
+        private MessageBuilder(Topic topic) {
+            setTopic(topic);
+        }
 
+        private MessageBuilder(String topic) {
+            setTopic(Topic.newBuilder(topic).build());
+        }
+
+        public MessageBuilder setTopic(Topic topic) {
+            this.topic = Objects.requireNonNull(topic, "Topic cannot be null");
+            return this;
         }
 
         public MessageBuilder setId(String id) {
@@ -100,14 +122,55 @@ public class Message {
             return this;
         }
 
-        public MessageBuilder setBasicProperties(BasicProperties basicProperties) {
-            this.basicProperties = basicProperties;
+        public MessageBuilder addProperty(String key, String value) {
+            basicProperties.put(key, value);
             return this;
         }
 
+        public MessageBuilder addProperty(String key, byte value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, short value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, char value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, int value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, long value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, float value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, double value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+        public MessageBuilder addProperty(String key, boolean value) {
+            basicProperties.put(key, value);
+            return this;
+        }
+
+
         public Message build() {
             return new Message(id, timestamp == -1 ? System.currentTimeMillis() : timestamp,
-                    owner, content, basicProperties);
+                    owner, content, topic, basicProperties);
         }
     }
 }

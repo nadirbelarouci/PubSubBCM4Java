@@ -1,23 +1,64 @@
 package fr.sorbonne_u.pubsub.components;
 
+
 import fr.sorbonne_u.components.AbstractComponent;
-import fr.sorbonne_u.components.annotations.OfferedInterfaces;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.pubsub.Message;
-import fr.sorbonne_u.pubsub.interfaces.PublisherI;
+import fr.sorbonne_u.pubsub.interfaces.PublisherService;
+import fr.sorbonne_u.pubsub.interfaces.RequirablePublisherService;
+import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
 
-@OfferedInterfaces(offered = PublisherI.class)
-public class Publisher extends AbstractComponent {
-    public Publisher(String uri, String publisherURI) throws Exception {
-        super(uri, 0, 1);
+import java.util.Objects;
+
+@RequiredInterfaces(required = RequirablePublisherService.class)
+public class Publisher extends AbstractComponent implements PublisherService {
+
+    private PublisherOutBoundPort publisherOutBoundPort;
+
+    public Publisher(String uri, String outBoundPortUri) throws Exception {
+        super(uri, 0, 0);
+
+        Objects.requireNonNull(uri);
+        Objects.requireNonNull(outBoundPortUri);
+
+        this.publisherOutBoundPort = new PublisherOutBoundPort(outBoundPortUri, this);
+        this.addPort(publisherOutBoundPort);
+        this.publisherOutBoundPort.localPublishPort();
+
+        this.tracer.setTitle("Publisher");
+        this.tracer.setRelativePosition(1, 2);
+
     }
 
+    @Override
+    public void start() throws ComponentStartException {
+        super.start();
+        this.logMessage("starting publisher component.");
 
-    public Message publishService() {
-
-        return null;
     }
 
-    public Iterable<Message> publishAllService() {
-        return null;
+    /**
+     * @see fr.sorbonne_u.components.AbstractComponent#finalise()
+     */
+    @Override
+    public void finalise() throws Exception {
+        this.logMessage("stopping publisher component.");
+        // This is the place where to clean up resources, such as
+        // disconnecting and unpublishing ports that will be destroyed
+        // when shutting down.
+        this.publisherOutBoundPort.doDisconnection();
+        this.publisherOutBoundPort.unpublishPort();
+
+        // This called at the end to make the component internal
+        // state move to the finalised state.
+        super.finalise();
+    }
+
+    @Override
+    public void publish(Message message) throws Exception {
+        this.logMessage("publisher publish a message with topic"
+                + message.getContent() + ": " + message.getTopic() + ".");
+        this.publisherOutBoundPort.publish(message);
     }
 }
