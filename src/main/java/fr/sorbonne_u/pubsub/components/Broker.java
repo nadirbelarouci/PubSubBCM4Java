@@ -11,13 +11,34 @@ import java.util.concurrent.*;
 
 public class Broker {
 
-    public final static Broker INSTANCE = new Broker();
+    private static Broker INSTANCE = null;
 
     private final ConcurrentHashMap<Topic, Set<Observer>> subscribers = new ConcurrentHashMap<>();
-    private MessageHandlerExecutor executor = new MessageHandlerExecutor(10);
+    private MessageHandlerExecutor executor;
+
+    // TODO SubscriberHandlerExecutor
 
     private Broker() {
-        super();
+        this.executor = new MessageHandlerExecutor();
+    }
+
+    private Broker(ExecutorService executor) {
+        this.executor = new MessageHandlerExecutor(executor);
+    }
+
+    public static Broker getInstance(ExecutorService executor) {
+        Objects.requireNonNull(executor);
+        if (INSTANCE == null) {
+            INSTANCE = new Broker(executor);
+        }
+        return INSTANCE;
+    }
+
+    public static Broker getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Broker();
+        }
+        return INSTANCE;
     }
 
     public CompletableFuture<Void> publish(Message message) {
@@ -30,16 +51,17 @@ public class Broker {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
+
         subscribers.computeIfAbsent(topic, t -> ConcurrentHashMap.newKeySet())
                 .add(obs);
     }
 
-    public void unsubscribe(Topic topic, Observer msgr) {
+    public void unsubscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
-        Objects.requireNonNull(msgr, "The Observer cannot be null.");
+        Objects.requireNonNull(obs, "The Observer cannot be null.");
 
         subscribers.computeIfPresent(topic, (t, subs) -> {
-            subs.remove(msgr);
+            subs.remove(obs);
             return subs;
         });
 
@@ -56,9 +78,11 @@ public class Broker {
     public void removeTopic(Topic topic) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
 
-        Set<Observer> subs = subscribers.remove(topic);
-        if (subs != null)
-            executor.submit(topic, subs);
+//        Set<Observer> subs = subscribers.remove(topic);
+//        if (subs != null)
+//            executor.submit(topic, subs);
+
+        subscribers.remove(topic);
 
     }
 
@@ -92,48 +116,34 @@ public class Broker {
 
 
     public static class MessageHandlerExecutor {
-        private ConcurrentHashMap<Topic, Set<Message>> messages = new ConcurrentHashMap<>();
 
         private ExecutorService executor;
 
-        private MessageHandlerExecutor(int nThreads) {
-            executor = Executors.newFixedThreadPool(nThreads);
+        private MessageHandlerExecutor() {
+
+            executor = Executors.newCachedThreadPool();
 
         }
 
+        private MessageHandlerExecutor(ExecutorService executor) {
+            this.executor = executor;
+        }
+
         private CompletableFuture<Void> submit(Message message, Set<Observer> observers) {
-            return CompletableFuture.runAsync(() -> addMessage(message), executor)
-                    .thenRunAsync(() -> sendMessage(message, observers), executor);
+            return CompletableFuture.runAsync(() -> sendMessage(message, observers), executor);
         }
 
         private void sendMessage(Message message, Set<Observer> observers) {
             if (observers != null) {
-                observers.forEach(receiver -> receiver.update(message));
-                messages.get(message.getTopic()).remove(message);
+                observers.forEach(obs -> obs.update(message));
             }
         }
 
-        private void sendMessages(Topic topic, Set<Observer> observers) {
-            if (observers != null)
-                messages.get(topic).forEach(message -> sendMessage(message, observers));
-        }
-
-
-        private void addMessage(Message message) {
-            messages.computeIfAbsent(message.getTopic(), t -> ConcurrentHashMap.newKeySet())
-                    .add(message);
-        }
-
-        private CompletableFuture<Void> submit(Topic topic, Set<Observer> observers) {
-            return CompletableFuture.runAsync(() -> sendMessages(topic, observers));
-
-        }
 
         public void shutdown() {
             try {
-
                 executor.shutdown();
-                executor.awaitTermination(2, TimeUnit.SECONDS);
+                executor.awaitTermination(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } finally {

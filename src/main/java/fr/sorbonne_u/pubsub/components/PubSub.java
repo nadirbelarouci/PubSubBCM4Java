@@ -19,7 +19,7 @@ import java.util.Objects;
 @RequiredInterfaces(required = RequirableMessagePublisher.class)
 public class PubSub extends AbstractComponent implements BrokerService, MessagePublisher {
 
-    private Broker broker = Broker.INSTANCE;
+    private Broker broker = Broker.getInstance();
     private MessagePublisherOutBoundPort msgPubOutBoundPort;
 
     public PubSub(String uri, String pubSubInBoundPortUri, String msgPubOutBoundPortUri) throws Exception {

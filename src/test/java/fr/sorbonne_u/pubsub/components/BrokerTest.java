@@ -4,10 +4,8 @@ import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -22,18 +20,14 @@ public class BrokerTest {
         observers.add(new ObserverMock("2"));
         observers.add(new ObserverMock("3"));
     }
-    private Broker broker = Broker.INSTANCE;
+    private Broker broker = Broker.getInstance();
 
     @Before
     public void setup() {
-        broker = Broker.INSTANCE;
-
 
     }
-
-
     @Test
-    public void removeingAnExistingTopicShouldUnsbscribeItsSubsAndNotifyThem() {
+    public void removingAnExistingTopicShouldUnsubscribeItsSubsAndNotifyThem() {
         broker.subscribe(TOPIC1, observers.get(0));
         broker.subscribe(TOPIC1, observers.get(1));
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
@@ -42,8 +36,6 @@ public class BrokerTest {
         assertFalse(broker.hasTopic(TOPIC1));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(1)));
-
-
     }
 
     @Test
@@ -52,16 +44,13 @@ public class BrokerTest {
         broker.subscribe(TOPIC2, observers.get(0));
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assumeTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
-
         broker.unsubscribe(observers.get(0));
-
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertFalse(broker.isSubscribed(TOPIC2, observers.get(0)));
-
     }
 
     @Test
-    public void unsubscribeFromATopicShouldUnubscribeItJustFromThisTopic() {
+    public void unsubscribeFromATopicShouldUnsubscribeItJustFromThisTopic() {
         broker.subscribe(TOPIC1, observers.get(0));
         broker.subscribe(TOPIC2, observers.get(0));
 
@@ -87,9 +76,7 @@ public class BrokerTest {
         assertTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
         assertTrue(broker.isSubscribed(TOPIC1, observers.get(1)));
         assertTrue(broker.isSubscribed(TOPIC2, observers.get(1)));
-
     }
-
 
     @Test
     public void publishShouldNotifyTheSubscribers() throws Exception {
@@ -100,7 +87,8 @@ public class BrokerTest {
 
 //        observers.forEach(sub -> assumeTrue(broker.isSubscribed(TOPIC1, sub)));
 //        assumeTrue(broker.hasTopic(TOPIC1));
-        broker.publish(Message.newBuilder(TOPIC1).setContent("Hello World Topic1").build()).get();
+        broker.publish(Message.newBuilder(TOPIC1).setContent("Hello World Topic1").build())
+                .get();
         for (ObserverMock sub : observers) {
 
 
@@ -111,7 +99,8 @@ public class BrokerTest {
         }
 
 
-        broker.publish(Message.newBuilder(TOPIC2).setContent("Hello World Topic2").build()).get();
+        broker.publish(Message.newBuilder(TOPIC2).setContent("Hello World Topic2").build())
+                .get();
         for (int i = 1; i <= 2; i++) {
             Message message = observers.get(i).getMessage();
             assertNotNull(message);
@@ -120,7 +109,8 @@ public class BrokerTest {
 
         Message message = observers.get(0).getMessage();
         assertEquals("Hello World Topic1", message.getContent());
-        broker.publish(Message.newBuilder(TOPIC3).setContent("Hello World Topic3").build()).get();
+        broker.publish(Message.newBuilder(TOPIC3).setContent("Hello World Topic3").build())
+                .get();
 
         message = observers.get(0).getMessage();
         assertNotNull(message);
@@ -133,17 +123,14 @@ public class BrokerTest {
         assertFalse(broker.isSubscribed(TOPIC2, observers.get(0)));
         assertFalse(broker.isSubscribed(observers.get(1)));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(1)));
-
     }
 
     @Test
-    public void isSubscribedShouldReturnTrueWhenTSubscriberisSubscribed() {
+    public void isSubscribedShouldReturnTrueWhenTSubscriberIsSubscribed() {
         broker.subscribe(TOPIC1, observers.get(0));
         assertTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertTrue(broker.isSubscribed(observers.get(0)));
         broker.unsubscribe(observers.get(0));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
     }
-
-
 }
