@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -27,9 +29,9 @@ public class BrokerTest {
 
     }
     @Test
-    public void removingAnExistingTopicShouldUnsubscribeItsSubsAndNotifyThem() {
-        broker.subscribe(TOPIC1, observers.get(0));
-        broker.subscribe(TOPIC1, observers.get(1));
+    public void removingAnExistingTopicShouldUnsubscribeItsSubsAndNotifyThem() throws ExecutionException, InterruptedException {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
+        broker.subscribe(TOPIC1, observers.get(1)).get();
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(1)));
         broker.removeTopic(TOPIC1);
@@ -39,26 +41,26 @@ public class BrokerTest {
     }
 
     @Test
-    public void unsubscribeASubscriberShouldUnsubscribeItFromAllTopics() {
-        broker.subscribe(TOPIC1, observers.get(0));
-        broker.subscribe(TOPIC2, observers.get(0));
+    public void unsubscribeASubscriberShouldUnsubscribeItFromAllTopics() throws ExecutionException, InterruptedException {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
+        broker.subscribe(TOPIC2, observers.get(0)).get();
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assumeTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
-        broker.unsubscribe(observers.get(0));
+        broker.unsubscribe(observers.get(0)).get();
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertFalse(broker.isSubscribed(TOPIC2, observers.get(0)));
     }
 
     @Test
-    public void unsubscribeFromATopicShouldUnsubscribeItJustFromThisTopic() {
-        broker.subscribe(TOPIC1, observers.get(0));
-        broker.subscribe(TOPIC2, observers.get(0));
+    public void unsubscribeFromATopicShouldUnsubscribeItJustFromThisTopic() throws ExecutionException, InterruptedException {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
+        broker.subscribe(TOPIC2, observers.get(0)).get();
 
 
         assumeTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assumeTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
 
-        broker.unsubscribe(TOPIC1, observers.get(0));
+        broker.unsubscribe(TOPIC1, observers.get(0)).get();
 
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
@@ -66,11 +68,11 @@ public class BrokerTest {
     }
 
     @Test
-    public void subscribeASubscriberToATopic() {
-        broker.subscribe(TOPIC1, observers.get(0));
-        broker.subscribe(TOPIC2, observers.get(0));
-        broker.subscribe(TOPIC1, observers.get(1));
-        broker.subscribe(TOPIC2, observers.get(1));
+    public void subscribeASubscriberToATopic()  throws ExecutionException, InterruptedException {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
+        broker.subscribe(TOPIC2, observers.get(0)).get();
+        broker.subscribe(TOPIC1, observers.get(1)).get();
+        broker.subscribe(TOPIC2, observers.get(1)).get();
 
         assertTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertTrue(broker.isSubscribed(TOPIC2, observers.get(0)));
@@ -79,11 +81,19 @@ public class BrokerTest {
     }
 
     @Test
-    public void publishShouldNotifyTheSubscribers() throws Exception {
-        observers.forEach(sub -> broker.subscribe(TOPIC1, sub));
-        broker.subscribe(TOPIC2, observers.get(1));
-        broker.subscribe(TOPIC2, observers.get(2));
-        broker.subscribe(TOPIC3, observers.get(0));
+    public void publishShouldNotifyTheSubscribers() throws Exception  {
+        observers.forEach(sub -> {
+            try {
+                broker.subscribe(TOPIC1, sub).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+        broker.subscribe(TOPIC2, observers.get(1)).get();
+        broker.subscribe(TOPIC2, observers.get(2)).get();
+        broker.subscribe(TOPIC3, observers.get(0)).get();
 
 //        observers.forEach(sub -> assumeTrue(broker.isSubscribed(TOPIC1, sub)));
 //        assumeTrue(broker.hasTopic(TOPIC1));
@@ -118,19 +128,19 @@ public class BrokerTest {
     }
 
     @Test
-    public void isSubscribedShouldReturnFalseWhenTheTopicDoesNotExistsOrTheSubscriberIsNotSubscribed() {
-        broker.subscribe(TOPIC1, observers.get(0));
+    public void isSubscribedShouldReturnFalseWhenTheTopicDoesNotExistsOrTheSubscriberIsNotSubscribed() throws ExecutionException, InterruptedException {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
         assertFalse(broker.isSubscribed(TOPIC2, observers.get(0)));
         assertFalse(broker.isSubscribed(observers.get(1)));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(1)));
     }
 
     @Test
-    public void isSubscribedShouldReturnTrueWhenTSubscriberIsSubscribed() {
-        broker.subscribe(TOPIC1, observers.get(0));
+    public void isSubscribedShouldReturnTrueWhenTSubscriberIsSubscribed() throws ExecutionException, InterruptedException  {
+        broker.subscribe(TOPIC1, observers.get(0)).get();
         assertTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertTrue(broker.isSubscribed(observers.get(0)));
-        broker.unsubscribe(observers.get(0));
+        broker.unsubscribe(observers.get(0)).get();
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
     }
 }

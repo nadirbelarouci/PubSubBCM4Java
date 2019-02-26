@@ -14,16 +14,19 @@ public class Broker {
     private static Broker INSTANCE = null;
 
     private final ConcurrentHashMap<Topic, Set<Observer>> subscribers = new ConcurrentHashMap<>();
-    private MessageHandlerExecutor executor;
 
-    // TODO SubscriberHandlerExecutor
+    private MessageHandlerExecutor executorMessage;
+    private SubscriberHandlerExecutor executorSubscriber;
+
 
     private Broker() {
-        this.executor = new MessageHandlerExecutor();
+        this.executorMessage = new MessageHandlerExecutor();
+        this.executorSubscriber = new SubscriberHandlerExecutor();
     }
 
     private Broker(ExecutorService executor) {
-        this.executor = new MessageHandlerExecutor(executor);
+        this.executorMessage = new MessageHandlerExecutor(executor);
+        this.executorSubscriber = new SubscriberHandlerExecutor(executor);
     }
 
     public static Broker getInstance(ExecutorService executor) {
@@ -41,37 +44,34 @@ public class Broker {
         return INSTANCE;
     }
 
+
     public CompletableFuture<Void> publish(Message message) {
         Objects.requireNonNull(message, "The Message cannot be null");
-        return executor.submit(message, subscribers.get(message.getTopic()));
+        return executorMessage.submit(message, subscribers.get(message.getTopic()));
     }
 
 
-    public void subscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> subscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-
-        subscribers.computeIfAbsent(topic, t -> ConcurrentHashMap.newKeySet())
-                .add(obs);
+        return executorSubscriber.subscrible(topic, obs, subscribers);
     }
 
-    public void unsubscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> unsubscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-        subscribers.computeIfPresent(topic, (t, subs) -> {
-            subs.remove(obs);
-            return subs;
-        });
-
+        return executorSubscriber.unsubscrible(topic, obs, subscribers);
     }
 
 
-    public void unsubscribe(Observer obs) {
+    public CompletableFuture<Void> unsubscribe(Observer obs) {
         subscribers.keySet()
                 .parallelStream()
                 .forEach(topic -> unsubscribe(topic, obs));
+
+        return executorSubscriber.unsubscrible(obs, subscribers);
     }
 
 
@@ -86,7 +86,7 @@ public class Broker {
 
     }
 
-    public boolean isSubscribed(Observer obs) {
+    protected boolean isSubscribed(Observer obs) {
         Objects.requireNonNull(obs, "The observer cannot be null.");
 
         return subscribers.entrySet()
@@ -95,7 +95,7 @@ public class Broker {
                 .anyMatch(set -> set.contains(obs));
     }
 
-    public boolean isSubscribed(Topic topic, Observer obs) {
+    protected boolean isSubscribed(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
@@ -106,49 +106,13 @@ public class Broker {
         return false;
     }
 
-    public boolean hasTopic(Topic topic) {
+    protected boolean hasTopic(Topic topic) {
         return subscribers.containsKey(topic);
     }
 
     public void shutdown() {
-        executor.shutdown();
+        executorMessage.shutdown();
+        executorSubscriber.shutdown();
     }
 
-
-    public static class MessageHandlerExecutor {
-
-        private ExecutorService executor;
-
-        private MessageHandlerExecutor() {
-
-            executor = Executors.newCachedThreadPool();
-
-        }
-
-        private MessageHandlerExecutor(ExecutorService executor) {
-            this.executor = executor;
-        }
-
-        private CompletableFuture<Void> submit(Message message, Set<Observer> observers) {
-            return CompletableFuture.runAsync(() -> sendMessage(message, observers), executor);
-        }
-
-        private void sendMessage(Message message, Set<Observer> observers) {
-            if (observers != null) {
-                observers.forEach(obs -> obs.update(message));
-            }
-        }
-
-
-        public void shutdown() {
-            try {
-                executor.shutdown();
-                executor.awaitTermination(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } finally {
-                executor.shutdownNow();
-            }
-        }
-    }
 }
