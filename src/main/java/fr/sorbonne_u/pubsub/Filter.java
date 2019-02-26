@@ -1,16 +1,46 @@
 package fr.sorbonne_u.pubsub;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 public class Filter {
+    private final ConcurrentHashMap<String, Filterable> filters = new ConcurrentHashMap<>();
+    private ForkJoinPool forkJoinPool = new ForkJoinPool(3);
 
-    private List<Predicate<Message>> filters = new ArrayList<>();
+//    public static void main() {
+////        new Filter().addFilter("", (int i) -> i > 5);
+//    }
 
-    public void add(Predicate<Message>... conditions) {
-        filters.addAll(Arrays.asList(conditions));
+
+    public Filter addFilter(String key, Filterable predicate) {
+        filters.put(key, predicate);
+        return this;
     }
 
+    public boolean apply(Message message) {
+        synchronized (filters) {
+//            filters.entrySet()
+//                    .parallelStream()
+//                    .forEach(e -> message.filter(e.getKey(), e.getValue()));
+        }
+
+        return true;
+    }
+
+    private interface Filterable {
+        boolean test(byte i);
+
+        boolean test(short i);
+
+        boolean test(char i);
+
+        boolean test(int i);
+
+        boolean test(long i);
+
+        boolean test(float i);
+
+        boolean test(double i);
+
+    }
 }

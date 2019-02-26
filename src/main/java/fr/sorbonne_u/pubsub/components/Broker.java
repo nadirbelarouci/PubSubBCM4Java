@@ -111,18 +111,20 @@ public class Broker {
     }
 
     public void shutdown() {
+        subscribers.clear();
         executor.shutdown();
+    }
+
+    protected void reboot() {
+        subscribers.clear();
     }
 
 
     public static class MessageHandlerExecutor {
-
         private ExecutorService executor;
 
         private MessageHandlerExecutor() {
-
             executor = Executors.newCachedThreadPool();
-
         }
 
         private MessageHandlerExecutor(ExecutorService executor) {
@@ -138,7 +140,6 @@ public class Broker {
                 observers.forEach(obs -> obs.update(message));
             }
         }
-
 
         public void shutdown() {
             try {

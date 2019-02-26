@@ -2,10 +2,13 @@ package fr.sorbonne_u.pubsub.components;
 
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -14,18 +17,27 @@ public class BrokerTest {
     private final static Topic TOPIC1 = Topic.newBuilder("TOPIC1").build();
     private final static Topic TOPIC2 = Topic.newBuilder("TOPIC2").build();
     private final static Topic TOPIC3 = Topic.newBuilder("TOPIC3").build();
-    private static List<ObserverMock> observers = new ArrayList<>();
+
     static {
-        observers.add(new ObserverMock("1"));
-        observers.add(new ObserverMock("2"));
-        observers.add(new ObserverMock("3"));
+
     }
+
+    private List<ObserverMock> observers = new ArrayList<>();
     private Broker broker = Broker.getInstance();
 
     @Before
     public void setup() {
-
+        observers.add(new ObserverMock("1"));
+        observers.add(new ObserverMock("2"));
+        observers.add(new ObserverMock("3"));
     }
+
+    @After
+    public void tearDown() {
+        observers.clear();
+        broker.reboot();
+    }
+
     @Test
     public void removingAnExistingTopicShouldUnsubscribeItsSubsAndNotifyThem() {
         broker.subscribe(TOPIC1, observers.get(0));
@@ -133,4 +145,6 @@ public class BrokerTest {
         broker.unsubscribe(observers.get(0));
         assertFalse(broker.isSubscribed(TOPIC1, observers.get(0)));
     }
+
+
 }

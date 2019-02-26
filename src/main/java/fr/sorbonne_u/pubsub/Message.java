@@ -1,21 +1,25 @@
 package fr.sorbonne_u.pubsub;
 
+import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class Message {
     private final String id;
-    private final long timestamp;
     private final String owner;
-    private final Object content;
-    private final BasicProperties basicProperties;
+    private final Serializable content;
     private final Topic topic;
+    private Map<String, Object> properties;
+    private long timestamp;
 
-    private Message(String id, long timestamp, String owner, Object content, Topic topic, BasicProperties basicProperties) {
+    private Message(String id, long timestamp, String owner, Serializable content, Topic topic, Map<String, Object> properties) {
         this.id = id;
         this.timestamp = timestamp;
         this.owner = owner;
         this.content = content;
-        this.basicProperties = basicProperties;
+        this.properties = properties;
         this.topic = topic;
     }
 
@@ -35,6 +39,10 @@ public class Message {
         return timestamp;
     }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public String getOwner() {
         return owner;
     }
@@ -43,8 +51,8 @@ public class Message {
         return content;
     }
 
-    public BasicProperties getBasicProperties() {
-        return basicProperties;
+    public Topic getTopic() {
+        return topic;
     }
 
     @Override
@@ -54,8 +62,13 @@ public class Message {
                 ", timestamp=" + timestamp +
                 ", owner='" + owner + '\'' +
                 ", content=" + content +
-                ", basicProperties=" + basicProperties +
+                ", properties=" + properties +
                 '}';
+    }
+
+
+    protected boolean filter(String key, Predicate<Object> predicate) {
+        return predicate.test(properties.get(key));
     }
 
     @Override
@@ -63,31 +76,27 @@ public class Message {
         if (this == o) return true;
         if (!(o instanceof Message)) return false;
         Message message = (Message) o;
-        return getTimestamp() == message.getTimestamp() &&
-                Objects.equals(getId(), message.getId()) &&
-                Objects.equals(getOwner(), message.getOwner()) &&
-                getContent().equals(message.getContent()) &&
-                Objects.equals(getBasicProperties(), message.getBasicProperties());
+        return timestamp == message.timestamp &&
+                Objects.equals(id, message.id) &&
+                Objects.equals(owner, message.owner) &&
+                Objects.equals(content, message.content) &&
+                Objects.equals(properties, message.properties) &&
+                Objects.equals(topic, message.topic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getTimestamp(), getOwner(), getContent(), getBasicProperties());
+        return Objects.hash(id, owner, content, properties, topic, timestamp);
     }
-
-
-    public Topic getTopic() {
-        return topic;
-    }
-
 
     public static class MessageBuilder {
         private String id;
         private long timestamp = -1;
         private String owner;
-        private Object content;
+        private Serializable content;
         private Topic topic;
-        private BasicProperties basicProperties = new BasicProperties();
+        private Map<String, Object> properties = new ConcurrentHashMap<>();
+
 
         private MessageBuilder(Topic topic) {
             setTopic(topic);
@@ -117,60 +126,61 @@ public class Message {
             return this;
         }
 
-        public MessageBuilder setContent(Object content) {
+        public MessageBuilder setContent(Serializable content) {
             this.content = content;
             return this;
         }
 
         public MessageBuilder addProperty(String key, String value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, byte value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, short value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, char value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, int value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, long value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, float value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, double value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
         public MessageBuilder addProperty(String key, boolean value) {
-            basicProperties.put(key, value);
+            properties.put(key, value);
             return this;
         }
 
 
         public Message build() {
             return new Message(id, timestamp == -1 ? System.currentTimeMillis() : timestamp,
-                    owner, content, topic, basicProperties);
+                    owner, content, topic, properties);
         }
     }
+
 }
