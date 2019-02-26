@@ -2,17 +2,33 @@ package fr.sorbonne_u.pubsub;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Predicate;
 
 public class Filter {
     private final ConcurrentHashMap<String, Filterable> filters = new ConcurrentHashMap<>();
     private ForkJoinPool forkJoinPool = new ForkJoinPool(3);
 
-//    public static void main() {
-////        new Filter().addFilter("", (int i) -> i > 5);
-//    }
+    public Filter addFilter(String key, IntPredicate predicate) {
+        filters.put(key, predicate);
+        return this;
+    }
 
+    public Filter addFilter(String key, DoublePredicate predicate) {
+        filters.put(key, predicate);
+        return this;
+    }
 
-    public Filter addFilter(String key, Filterable predicate) {
+    public Filter addFilter(String key, LongPredicate predicate) {
+        filters.put(key, predicate);
+        return this;
+    }
+
+    public Filter addFilter(String key, StringPredicate predicate) {
+        filters.put(key, predicate);
+        return this;
+    }
+
+    public Filter addFilter(String key, BooleanPredicate predicate) {
         filters.put(key, predicate);
         return this;
     }
@@ -27,20 +43,28 @@ public class Filter {
         return true;
     }
 
+
     private interface Filterable {
-        boolean test(byte i);
+    }
 
-        boolean test(short i);
-
-        boolean test(char i);
-
-        boolean test(int i);
-
-        boolean test(long i);
-
-        boolean test(float i);
-
-        boolean test(double i);
+    private interface IntPredicate extends Filterable, java.util.function.IntPredicate {
 
     }
+
+    private interface DoublePredicate extends Filterable, java.util.function.DoublePredicate {
+
+    }
+
+    private interface LongPredicate extends Filterable, java.util.function.LongPredicate {
+
+    }
+
+    private interface StringPredicate extends Filterable, Predicate<String> {
+
+    }
+
+    private interface BooleanPredicate extends Filterable, Predicate<Boolean> {
+
+    }
+
 }

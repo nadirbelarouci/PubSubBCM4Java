@@ -4,26 +4,27 @@ import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.Observer;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 public class Broker {
 
     private static Broker INSTANCE = null;
 
-    private final ConcurrentHashMap<Topic, Set<Observer>> subscribers = new ConcurrentHashMap<>();
-    private MessageHandlerExecutor executor;
 
-    // TODO SubscriberHandlerExecutor
+    private MessageHandlerExecutor msgHandlerExec;
+    private SubscriberHandlerExecutor subHandlerExec;
+
 
     private Broker() {
-        this.executor = new MessageHandlerExecutor();
+        this.msgHandlerExec = new MessageHandlerExecutor();
+        this.subHandlerExec = new SubscriberHandlerExecutor();
     }
 
     private Broker(ExecutorService executor) {
-        this.executor = new MessageHandlerExecutor(executor);
+        this.msgHandlerExec = new MessageHandlerExecutor(executor);
+        this.subHandlerExec = new SubscriberHandlerExecutor(executor);
     }
 
     public static Broker getInstance(ExecutorService executor) {
@@ -41,115 +42,65 @@ public class Broker {
         return INSTANCE;
     }
 
+
     public CompletableFuture<Void> publish(Message message) {
         Objects.requireNonNull(message, "The Message cannot be null");
-        return executor.submit(message, subscribers.get(message.getTopic()));
+        return msgHandlerExec.submit(message, subHandlerExec.getSubscribers(message.getTopic()));
     }
 
 
-    public void subscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> subscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-
-        subscribers.computeIfAbsent(topic, t -> ConcurrentHashMap.newKeySet())
-                .add(obs);
+        return subHandlerExec.subscribe(topic, obs);
     }
 
-    public void unsubscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> unsubscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-        subscribers.computeIfPresent(topic, (t, subs) -> {
-            subs.remove(obs);
-            return subs;
-        });
-
+        return subHandlerExec.unsubscribe(topic, obs);
     }
 
 
-    public void unsubscribe(Observer obs) {
-        subscribers.keySet()
-                .parallelStream()
-                .forEach(topic -> unsubscribe(topic, obs));
+    public CompletableFuture<Void> unsubscribe(Observer obs) {
+
+        return subHandlerExec.unsubscribe(obs);
     }
 
 
-    public void removeTopic(Topic topic) {
+    public CompletableFuture<Void> removeTopic(Topic topic) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
 
-//        Set<Observer> subs = subscribers.remove(topic);
-//        if (subs != null)
-//            executor.submit(topic, subs);
-
-        subscribers.remove(topic);
-
+        return subHandlerExec.removeTopic(topic);
     }
 
-    public boolean isSubscribed(Observer obs) {
+    protected boolean isSubscribed(Observer obs) {
         Objects.requireNonNull(obs, "The observer cannot be null.");
 
-        return subscribers.entrySet()
-                .parallelStream()
-                .map(Map.Entry::getValue)
-                .anyMatch(set -> set.contains(obs));
+        return subHandlerExec.isSubscribed(obs);
     }
 
-    public boolean isSubscribed(Topic topic, Observer obs) {
+    protected boolean isSubscribed(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-
-        if (hasTopic(topic))
-            return subscribers.get(topic).contains(obs);
-
-        return false;
+        return subHandlerExec.isSubscribed(topic, obs);
     }
 
-    public boolean hasTopic(Topic topic) {
-        return subscribers.containsKey(topic);
+    protected boolean hasTopic(Topic topic) {
+        return subHandlerExec.hasTopic(topic);
     }
 
     public void shutdown() {
-        subscribers.clear();
-        executor.shutdown();
+        msgHandlerExec.shutdown();
+        subHandlerExec.clear();
+        subHandlerExec.shutdown();
     }
 
     protected void reboot() {
-        subscribers.clear();
+        subHandlerExec.clear();
     }
 
-
-    public static class MessageHandlerExecutor {
-        private ExecutorService executor;
-
-        private MessageHandlerExecutor() {
-            executor = Executors.newCachedThreadPool();
-        }
-
-        private MessageHandlerExecutor(ExecutorService executor) {
-            this.executor = executor;
-        }
-
-        private CompletableFuture<Void> submit(Message message, Set<Observer> observers) {
-            return CompletableFuture.runAsync(() -> sendMessage(message, observers), executor);
-        }
-
-        private void sendMessage(Message message, Set<Observer> observers) {
-            if (observers != null) {
-                observers.forEach(obs -> obs.update(message));
-            }
-        }
-
-        public void shutdown() {
-            try {
-                executor.shutdown();
-                executor.awaitTermination(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } finally {
-                executor.shutdownNow();
-            }
-        }
-    }
 }
