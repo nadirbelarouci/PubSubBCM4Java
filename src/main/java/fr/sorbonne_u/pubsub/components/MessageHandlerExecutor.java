@@ -11,7 +11,6 @@ public class MessageHandlerExecutor extends HandlerExecutor {
 
     protected MessageHandlerExecutor() {
         super();
-
     }
 
     protected MessageHandlerExecutor(ExecutorService executor) {
@@ -24,7 +23,8 @@ public class MessageHandlerExecutor extends HandlerExecutor {
 
     private void sendMessage(Message message, Set<Observer> observers) {
         if (observers != null) {
-            observers.forEach(obs -> obs.update(message));
+            observers.stream().filter(Observer::accept)
+                    .forEach(obs -> obs.update(message));
         }
     }
 }

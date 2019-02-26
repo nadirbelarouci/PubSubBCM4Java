@@ -40,7 +40,6 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
 
     }
 
-
     private void deleteObserver(Topic topic, Observer obs) {
         subscribers.computeIfPresent(topic, (t, subs) -> {
             subs.remove(obs);

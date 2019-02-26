@@ -76,7 +76,7 @@ public class BrokerTest {
     }
 
     @Test
-    public void subscribeASubscriberToATopic()  throws ExecutionException, InterruptedException {
+    public void subscribeASubscriberToATopic() throws ExecutionException, InterruptedException {
         broker.subscribe(TOPIC1, observers.get(0)).get();
         broker.subscribe(TOPIC2, observers.get(0)).get();
         broker.subscribe(TOPIC1, observers.get(1)).get();
@@ -89,13 +89,11 @@ public class BrokerTest {
     }
 
     @Test
-    public void publishShouldNotifyTheSubscribers() throws Exception  {
+    public void publishShouldNotifyTheSubscribers() throws Exception {
         observers.forEach(sub -> {
             try {
                 broker.subscribe(TOPIC1, sub).get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
@@ -105,6 +103,7 @@ public class BrokerTest {
 
 //        observers.forEach(sub -> assumeTrue(broker.isSubscribed(TOPIC1, sub)));
 //        assumeTrue(broker.hasTopic(TOPIC1));
+
         broker.publish(Message.newBuilder(TOPIC1).setContent("Hello World Topic1").build())
                 .get();
         for (ObserverMock sub : observers) {
@@ -144,7 +143,7 @@ public class BrokerTest {
     }
 
     @Test
-    public void isSubscribedShouldReturnTrueWhenTSubscriberIsSubscribed() throws ExecutionException, InterruptedException  {
+    public void isSubscribedShouldReturnTrueWhenTSubscriberIsSubscribed() throws ExecutionException, InterruptedException {
         broker.subscribe(TOPIC1, observers.get(0)).get();
         assertTrue(broker.isSubscribed(TOPIC1, observers.get(0)));
         assertTrue(broker.isSubscribed(observers.get(0)));

@@ -9,6 +9,4 @@ public interface SubscriberService extends RequiredI {
     void unsubscribe(Topic topic) throws Exception;
 
     void unsubscribe() throws Exception;
-
-
 }
