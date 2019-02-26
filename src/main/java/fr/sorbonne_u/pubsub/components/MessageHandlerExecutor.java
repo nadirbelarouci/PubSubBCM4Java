@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
-public class MessageHandlerExecutor extends HandlerExecutor{
+public class MessageHandlerExecutor extends HandlerExecutor {
 
     protected MessageHandlerExecutor() {
         super();
