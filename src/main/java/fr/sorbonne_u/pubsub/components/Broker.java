@@ -5,27 +5,26 @@ import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.Observer;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 public class Broker {
-    private ConcurrentHashMap<Topic, Set<Observer>> subscribers = new ConcurrentHashMap<>();
 
     private static Broker INSTANCE = null;
 
 
-    private MessageHandlerExecutor executorMessage;
-    private SubscribeHandlerExecutor executorSubscriber;
+    private MessageHandlerExecutor msgHandlerExec;
+    private SubscriberHandlerExecutor subHandlerExec;
 
 
     private Broker() {
-        this.executorMessage = new MessageHandlerExecutor();
-        this.executorSubscriber = new SubscribeHandlerExecutor();
+        this.msgHandlerExec = new MessageHandlerExecutor();
+        this.subHandlerExec = new SubscriberHandlerExecutor();
     }
 
     private Broker(ExecutorService executor) {
-        this.executorMessage = new MessageHandlerExecutor(executor);
-        this.executorSubscriber = new SubscribeHandlerExecutor(executor);
+        this.msgHandlerExec = new MessageHandlerExecutor(executor);
+        this.subHandlerExec = new SubscriberHandlerExecutor(executor);
     }
 
     public static Broker getInstance(ExecutorService executor) {
@@ -46,9 +45,7 @@ public class Broker {
 
     public CompletableFuture<Void> publish(Message message) {
         Objects.requireNonNull(message, "The Message cannot be null");
-        subscribers = executorSubscriber.getSubscribers();
-
-        return executorMessage.submit(message, subscribers.get(message.getTopic()));
+        return msgHandlerExec.submit(message, subHandlerExec.getSubscribers(message.getTopic()));
     }
 
 
@@ -56,49 +53,49 @@ public class Broker {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-        return executorSubscriber.subscrible(topic, obs);
+        return subHandlerExec.subscribe(topic, obs);
     }
 
     public CompletableFuture<Void> unsubscribe(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-        return executorSubscriber.unsubscrible(topic, obs);
+        return subHandlerExec.unsubscribe(topic, obs);
     }
 
 
     public CompletableFuture<Void> unsubscribe(Observer obs) {
 
-        return executorSubscriber.unsubscrible(obs);
+        return subHandlerExec.unsubscribe(obs);
     }
 
 
     public CompletableFuture<Void> removeTopic(Topic topic) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
 
-        return executorSubscriber.removeTopic(topic);
+        return subHandlerExec.removeTopic(topic);
     }
 
     protected boolean isSubscribed(Observer obs) {
         Objects.requireNonNull(obs, "The observer cannot be null.");
 
-        return executorSubscriber.isSubscribed(obs);
+        return subHandlerExec.isSubscribed(obs);
     }
 
     protected boolean isSubscribed(Topic topic, Observer obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The Observer cannot be null.");
 
-        return executorSubscriber.isSubscribed(topic, obs);
+        return subHandlerExec.isSubscribed(topic, obs);
     }
 
     protected boolean hasTopic(Topic topic) {
-        return executorSubscriber.hasTopic(topic);
+        return subHandlerExec.hasTopic(topic);
     }
 
     public void shutdown() {
-        executorMessage.shutdown();
-        executorSubscriber.shutdown();
+        msgHandlerExec.shutdown();
+        subHandlerExec.shutdown();
     }
 
 }
