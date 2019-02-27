@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs.ports;
+package fr.sorbonne_u.pubsub.basic_cs.ports;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -37,8 +37,8 @@ package fr.sorbonne_u.pubsub.components.basic_cs.ports;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
-import fr.sorbonne_u.pubsub.components.basic_cs.components.URIProvider;
-import fr.sorbonne_u.pubsub.components.basic_cs.interfaces.URIProviderI;
+import fr.sorbonne_u.pubsub.basic_cs.components.URIProvider;
+import fr.sorbonne_u.pubsub.basic_cs.interfaces.URIProviderI;
 
 //-----------------------------------------------------------------------------
 

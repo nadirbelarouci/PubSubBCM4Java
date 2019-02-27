@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs;
+package fr.sorbonne_u.pubsub.basic_cs;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -35,9 +35,9 @@ package fr.sorbonne_u.pubsub.components.basic_cs;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.cvm.AbstractDistributedCVM;
-import fr.sorbonne_u.pubsub.components.basic_cs.components.URIConsumer;
-import fr.sorbonne_u.pubsub.components.basic_cs.components.URIProvider;
-import fr.sorbonne_u.pubsub.components.basic_cs.connectors.URIServiceConnector;
+import fr.sorbonne_u.pubsub.basic_cs.components.URIConsumer;
+import fr.sorbonne_u.pubsub.basic_cs.components.URIProvider;
+import fr.sorbonne_u.pubsub.basic_cs.connectors.URIServiceConnector;
 
 //-----------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@ package fr.sorbonne_u.pubsub.components;
 
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
-import fr.sorbonne_u.pubsub.interfaces.Observer;
+import fr.sorbonne_u.pubsub.interfaces.MessagePublisher;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -49,23 +49,23 @@ public class Broker {
     }
 
 
-    public CompletableFuture<Void> subscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> subscribe(Topic topic, MessagePublisher obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
-        Objects.requireNonNull(obs, "The Observer cannot be null.");
+        Objects.requireNonNull(obs, "The MessagePublisher cannot be null.");
 
         return subHandlerExec.subscribe(topic, obs);
     }
 
-    public CompletableFuture<Void> unsubscribe(Topic topic, Observer obs) {
+    public CompletableFuture<Void> unsubscribe(Topic topic, MessagePublisher obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
-        Objects.requireNonNull(obs, "The Observer cannot be null.");
+        Objects.requireNonNull(obs, "The MessagePublisher cannot be null.");
 
         return subHandlerExec.unsubscribe(topic, obs);
     }
 
 
-    public CompletableFuture<Void> unsubscribe(Observer obs) {
-
+    public CompletableFuture<Void> unsubscribe(MessagePublisher obs) {
+        Objects.requireNonNull(obs);
         return subHandlerExec.unsubscribe(obs);
     }
 
@@ -76,20 +76,21 @@ public class Broker {
         return subHandlerExec.removeTopic(topic);
     }
 
-    protected boolean isSubscribed(Observer obs) {
+    protected boolean isSubscribed(MessagePublisher obs) {
         Objects.requireNonNull(obs, "The observer cannot be null.");
 
         return subHandlerExec.isSubscribed(obs);
     }
 
-    protected boolean isSubscribed(Topic topic, Observer obs) {
+    protected boolean isSubscribed(Topic topic, MessagePublisher obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
-        Objects.requireNonNull(obs, "The Observer cannot be null.");
+        Objects.requireNonNull(obs, "The MessagePublisher cannot be null.");
 
         return subHandlerExec.isSubscribed(topic, obs);
     }
 
     protected boolean hasTopic(Topic topic) {
+        Objects.requireNonNull(topic);
         return subHandlerExec.hasTopic(topic);
     }
 

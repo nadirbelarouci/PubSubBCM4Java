@@ -12,7 +12,7 @@ public class MessagePublisherOutBoundPort extends AbstractOutboundPort implement
     }
 
     @Override
-    public void update(Message message) throws Exception {
-        ((RequirableMessagePublisher) this.connector).update(message);
+    public void sendMessage(Message message) {
+        ((RequirableMessagePublisher) this.connector).sendMessage(message);
     }
 }

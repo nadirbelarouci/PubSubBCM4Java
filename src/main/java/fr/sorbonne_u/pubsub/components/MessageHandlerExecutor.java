@@ -1,7 +1,7 @@
 package fr.sorbonne_u.pubsub.components;
 
 import fr.sorbonne_u.pubsub.Message;
-import fr.sorbonne_u.pubsub.interfaces.Observer;
+import fr.sorbonne_u.pubsub.interfaces.MessagePublisher;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -17,14 +17,16 @@ public class MessageHandlerExecutor extends HandlerExecutor {
         super(executor);
     }
 
-    protected CompletableFuture<Void> submit(Message message, Set<Observer> observers) {
+    protected CompletableFuture<Void> submit(Message message, Set<MessagePublisher> observers) {
         return CompletableFuture.runAsync(() -> sendMessage(message, observers), super.executor);
     }
 
-    private void sendMessage(Message message, Set<Observer> observers) {
+    private void sendMessage(Message message, Set<MessagePublisher> observers) {
         if (observers != null) {
-            observers.stream().filter(Observer::accept)
-                    .forEach(obs -> obs.update(message));
+            observers.stream()
+                    .parallel()
+                    .filter(MessagePublisher::accept)
+                    .forEach(obs -> obs.sendMessage(message));
         }
     }
 }

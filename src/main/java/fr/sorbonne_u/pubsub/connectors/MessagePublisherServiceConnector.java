@@ -8,8 +8,12 @@ import fr.sorbonne_u.pubsub.interfaces.RequirableMessagePublisher;
 public class MessagePublisherServiceConnector extends AbstractConnector implements RequirableMessagePublisher {
 
     @Override
-    public void update(Message message) throws Exception {
-        ((MessageReceiver) this.offering).update(message);
+    public void sendMessage(Message message) {
+        try {
+            ((MessageReceiver) this.offering).receiveMessage(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

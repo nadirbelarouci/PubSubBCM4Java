@@ -1,12 +1,12 @@
 package fr.sorbonne_u.pubsub;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class Filter {
     private final ConcurrentHashMap<String, Filterable> filters = new ConcurrentHashMap<>();
-    private ForkJoinPool forkJoinPool = new ForkJoinPool(3);
+
 
     public Filter addFilter(String key, IntPredicate predicate) {
         filters.put(key, predicate);

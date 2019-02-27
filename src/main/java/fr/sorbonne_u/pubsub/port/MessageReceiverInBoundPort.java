@@ -14,12 +14,12 @@ public class MessageReceiverInBoundPort extends AbstractInboundPort implements O
 
 
     @Override
-    public void update(Message message)throws Exception {
+    public void receiveMessage(Message message)throws Exception {
         this.getOwner().handleRequestSync(
                 new AbstractComponent.AbstractService<Void>() {
                     @Override
                     public Void call() throws Exception {
-                        ((MessageReceiver) this.getOwner()).update(message);
+                        ((MessageReceiver) this.getOwner()).receiveMessage(message);
                         return null;
                     }
                 });

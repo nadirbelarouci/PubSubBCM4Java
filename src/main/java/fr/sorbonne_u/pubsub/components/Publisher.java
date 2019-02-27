@@ -17,8 +17,7 @@ public class Publisher extends AbstractComponent implements PublisherService {
     private PublisherOutBoundPort publisherOutBoundPort;
 
     public Publisher(String uri, String outBoundPortUri) throws Exception {
-        super(uri, 0, 0);
-
+        super(uri, 1, 1);
         Objects.requireNonNull(uri);
         Objects.requireNonNull(outBoundPortUri);
 
@@ -37,6 +36,8 @@ public class Publisher extends AbstractComponent implements PublisherService {
         this.logMessage("starting publisher component.");
 
     }
+
+
 
     /**
      * @see fr.sorbonne_u.components.AbstractComponent#finalise()
@@ -57,8 +58,7 @@ public class Publisher extends AbstractComponent implements PublisherService {
 
     @Override
     public void publish(Message message) throws Exception {
-        this.logMessage("publisher publish a message with topic"
-                + message.getContent() + ": " + message.getTopic() + ".");
+        this.logMessage("publisher publishing: " + message.getContent() + " -> " + message.getTopic() + ".");
         this.publisherOutBoundPort.publish(message);
     }
 }

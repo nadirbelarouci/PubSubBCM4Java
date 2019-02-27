@@ -20,14 +20,14 @@ public class BrokerTest {
     private final static Topic TOPIC3 = Topic.newBuilder("TOPIC3").build();
 
 
-    private List<ObserverMock> observers = new ArrayList<>();
+    private List<MessagePublisherMock> observers = new ArrayList<>();
     private Broker broker = Broker.getInstance();
 
     @Before
     public void setup() {
-        observers.add(new ObserverMock("1"));
-        observers.add(new ObserverMock("2"));
-        observers.add(new ObserverMock("3"));
+        observers.add(new MessagePublisherMock("1"));
+        observers.add(new MessagePublisherMock("2"));
+        observers.add(new MessagePublisherMock("3"));
     }
 
     @After
@@ -106,7 +106,7 @@ public class BrokerTest {
 
         broker.publish(Message.newBuilder(TOPIC1).setContent("Hello World Topic1").build())
                 .get();
-        for (ObserverMock sub : observers) {
+        for (MessagePublisherMock sub : observers) {
 
 
             Message message = sub.getMessage();

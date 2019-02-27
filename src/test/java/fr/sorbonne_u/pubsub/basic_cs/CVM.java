@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs;
+package fr.sorbonne_u.pubsub.basic_cs;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -35,9 +35,9 @@ package fr.sorbonne_u.pubsub.components.basic_cs;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.pubsub.components.basic_cs.components.URIConsumer;
-import fr.sorbonne_u.pubsub.components.basic_cs.components.URIProvider;
-import fr.sorbonne_u.pubsub.components.basic_cs.connectors.URIServiceConnector;
+import fr.sorbonne_u.pubsub.basic_cs.components.URIConsumer;
+import fr.sorbonne_u.pubsub.basic_cs.components.URIProvider;
+import fr.sorbonne_u.pubsub.basic_cs.connectors.URIServiceConnector;
 
 //-----------------------------------------------------------------------------
 
@@ -67,6 +67,7 @@ public class CVM extends AbstractCVM {
      * URI of the provider component (convenience).
      */
     protected static final String PROVIDER_COMPONENT_URI = "my-URI-provider";
+    protected static final String PROVIDER_COMPONENT_URI_2 = "my-URI-provider-2";
     /**
      * URI of the consumer component (convenience).
      */
@@ -81,11 +82,13 @@ public class CVM extends AbstractCVM {
      * URI of the consumer inbound port (simplifies the connection).
      */
     protected static final String URIProviderInboundPortURI = "iport";
+    protected static final String URIProviderInboundPortURI_2 = "iport-2";
     /**
      * Reference to the provider component to share between deploy
      * and shutdown.
      */
-    protected URIProvider uriProvider;
+    protected URIProvider uriProvider1;
+    protected URIProvider uriProvider2;
     /**
      * Reference to the consumer component to share between deploy
      * and shutdown.
@@ -144,14 +147,17 @@ public class CVM extends AbstractCVM {
         // --------------------------------------------------------------------
 
         // create the provider component
-        this.uriProvider = new URIProvider(PROVIDER_COMPONENT_URI,
-                URIProviderInboundPortURI);
+        this.uriProvider1 = new URIProvider(PROVIDER_COMPONENT_URI, URIProviderInboundPortURI);
+        this.uriProvider2 = new URIProvider(PROVIDER_COMPONENT_URI_2, URIProviderInboundPortURI_2);
         // make it trace its operations; comment and uncomment the line to see
         // the difference
-        this.uriProvider.toggleTracing();
-        this.uriProvider.toggleLogging();
+        this.uriProvider1.toggleTracing();
+        this.uriProvider1.toggleLogging();
+        this.uriProvider2.toggleTracing();
+        this.uriProvider2.toggleLogging();
         // add it to the deployed components
-        this.deployedComponents.add(uriProvider);
+        this.deployedComponents.add(uriProvider1);
+        this.deployedComponents.add(uriProvider2);
 
         // create the consumer component
         this.uriConsumer1 = new URIConsumer(CONSUMER_COMPONENT_URI,
@@ -186,6 +192,10 @@ public class CVM extends AbstractCVM {
                 URIGetterOutboundPortURI_2,
                 URIProviderInboundPortURI,
                 URIServiceConnector.class.getCanonicalName());
+        this.uriConsumer2.doPortConnection(
+                URIGetterOutboundPortURI_2,
+                URIProviderInboundPortURI_2,
+                URIServiceConnector.class.getCanonicalName());
         // --------------------------------------------------------------------
         // Deployment done
         // --------------------------------------------------------------------
@@ -214,7 +224,8 @@ public class CVM extends AbstractCVM {
         // print logs on files, if activated
         this.uriConsumer1.printExecutionLogOnFile("consumer1");
         this.uriConsumer2.printExecutionLogOnFile("consumer2");
-        this.uriProvider.printExecutionLogOnFile("provider");
+        this.uriProvider1.printExecutionLogOnFile("provider");
+        this.uriProvider2.printExecutionLogOnFile("provider");
 
         super.shutdown();
     }

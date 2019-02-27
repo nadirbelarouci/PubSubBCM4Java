@@ -4,8 +4,10 @@ package fr.sorbonne_u.pubsub.components;
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
+import fr.sorbonne_u.pubsub.Filter;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.MessageReceiver;
@@ -25,23 +27,25 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
 
 
     public Subscriber(String uri, String subOutBoundPortUri, String msgInBoundPortUri) throws Exception {
-        super(uri, 0, 0);
+        super(uri, 1, 1);
         Objects.requireNonNull(uri);
         Objects.requireNonNull(subOutBoundPortUri);
+        Objects.requireNonNull(msgInBoundPortUri);
 
 
         this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
         this.addPort(subscriberOutBoundPort);
         this.subscriberOutBoundPort.localPublishPort();
 
+
         PortI p = new MessageReceiverInBoundPort(msgInBoundPortUri, this);
         // add the port to the set of ports of the component
         this.addPort(p);
         // publish the port
         p.publishPort();
+//
 
-
-        this.tracer.setTitle("Publisher");
+        this.tracer.setTitle("Subscriber");
         this.tracer.setRelativePosition(1, 1);
 
     }
@@ -71,27 +75,55 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     }
 
     @Override
-    public void subscribe(Topic topic) throws Exception {
+    public void shutdown() throws ComponentShutdownException {
+        try {
+            PortI[] p = this.findPortsFromInterface(OfferableMessageReceiver.class);
+            p[0].unpublishPort();
+        } catch (Exception e) {
+            throw new ComponentShutdownException(e);
+        }
+        super.shutdown();
+    }
+
+    @Override
+    public void shutdownNow() throws ComponentShutdownException {
+        try {
+            PortI[] p = this.findPortsFromInterface(OfferableMessageReceiver.class);
+            p[0].unpublishPort();
+        } catch (Exception e) {
+            throw new ComponentShutdownException(e);
+        }
+        super.shutdownNow();
+    }
+
+    @Override
+    public void subscribe(Topic topic) {
         this.logMessage("subscriber subscribe to a topic: " + topic);
         this.subscriberOutBoundPort.subscribe(topic);
     }
 
     @Override
-    public void unsubscribe(Topic topic) throws Exception {
+    public void subscribe(Topic topic, Filter filter) {
+        this.logMessage("subscriber subscribe to a topic: " + topic);
+        this.subscriberOutBoundPort.subscribe(topic, filter);
+    }
+
+    @Override
+    public void unsubscribe(Topic topic) {
         this.logMessage("subscriber unsubscribe from a topic: " + topic);
         this.subscriberOutBoundPort.unsubscribe(topic);
 
     }
 
     @Override
-    public void unsubscribe() throws Exception {
+    public void unsubscribe() {
         this.logMessage("subscriber unsubscribe from all topics.");
         this.subscriberOutBoundPort.unsubscribe();
 
     }
 
     @Override
-    public void update(Message message) {
+    public void receiveMessage(Message message) {
         this.logMessage("subscriber received a message: " + message.getContent());
     }
 }

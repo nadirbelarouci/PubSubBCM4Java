@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs.ports;
+package fr.sorbonne_u.pubsub.basic_cs.interfaces;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,99 +34,58 @@ package fr.sorbonne_u.pubsub.components.basic_cs.ports;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.ComponentI;
-import fr.sorbonne_u.components.ports.AbstractOutboundPort;
-import fr.sorbonne_u.pubsub.components.basic_cs.interfaces.URIConsumerI;
+import fr.sorbonne_u.components.interfaces.OfferedI;
 
 //-----------------------------------------------------------------------------
 
 /**
- * The class <code>URIConsumerOutboundPort</code> implements the outbound port
- * of a component that requires an URI service through the
- * <code>URIConsumerI</code> interface.
+ * The interface <code>URIProviderI</code> defines the interface offered by a
+ * an URI provider component.
  *
- * <p><strong>Invariant</strong></p>
- *
- * <pre>
- * invariant		true
- * </pre>
+ * <p><strong>Description</strong></p>
+ * <p>
+ * As a RMI remote interface, all of the methods must return
+ * <code>RemoteException</code>. The choice here is to throw
+ * <code>Exception</code> to cater for potential exceptions
+ * thrown by the implementation methods.
  *
  * <p>Created on : 2014-01-22</p>
  *
  * @author    <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class URIConsumerOutboundPort
-        extends AbstractOutboundPort
-        implements URIConsumerI {
-    private static final long serialVersionUID = 1L;
-
+public interface URIProviderI
+        extends OfferedI {
     /**
-     * create the port with the given URI and the given owner.
+     * return a URI considered as a string.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
-     * pre	uri != null and owner != null
-     * post	true			// no postcondition.
+     * pre	true			// no precondition.
+     * post	ret != null
      * </pre>
      *
-     * @param uri   URI of the port.
-     * @param owner owner of the port.
      * @throws Exception <i>todo.</i>
+     * @return a new URI.
      */
-    public URIConsumerOutboundPort(
-            String uri,
-            ComponentI owner
-    ) throws Exception {
-        super(uri, URIConsumerI.class, owner);
-
-        assert uri != null && owner != null;
-    }
+    String provideURI() throws Exception;
 
     /**
-     * create the port with the given owner.
+     * return an array of URIs each considered as a string.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
-     * pre	owner != null
-     * post	true			// no postcondition.
+     * pre	numberOfRequestedURIs &gt; 0
+     * post	ret != null and ret.length == numberOfRequestedURIs
+     * post	forall i in 0..numberOfRequestedURIs-1, ret[i] != null
      * </pre>
      *
-     * @param owner owner of the port.
+     * @param numberOfRequestedURIs number of URIs to be returned.
      * @throws Exception <i>todo.</i>
+     * @return array of new URIs.
      */
-    public URIConsumerOutboundPort(ComponentI owner)
-            throws Exception {
-        super(URIConsumerI.class, owner);
-
-        assert owner != null;
-    }
-
-    /**
-     * get an URI by calling the server component through the connector that
-     * implements the required interface.
-     *
-     * <p><strong>Contract</strong></p>
-     *
-     * <pre>
-     * pre	true				// no more preconditions.
-     * post	true				// no more postconditions.
-     * </pre>
-     *
-     * @see URIConsumerI#getURI()
-     */
-    @Override
-    public String getURI() throws Exception {
-        return ((URIConsumerI) this.connector).getURI();
-    }
-
-    /**
-     * @see URIConsumerI#getURIs(int)
-     */
-    @Override
-    public String[] getURIs(int numberOfURIs) throws Exception {
-        return ((URIConsumerI) this.connector).getURIs(numberOfURIs);
-    }
+    String[] provideURIs(int numberOfRequestedURIs)
+            throws Exception;
 }
 //-----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs.interfaces;
+package fr.sorbonne_u.pubsub.basic_cs.interfaces;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,13 +34,13 @@ package fr.sorbonne_u.pubsub.components.basic_cs.interfaces;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.interfaces.OfferedI;
+import fr.sorbonne_u.components.interfaces.RequiredI;
 
 //-----------------------------------------------------------------------------
 
 /**
- * The interface <code>URIProviderI</code> defines the interface offered by a
- * an URI provider component.
+ * The interface <code>URIConsumerI</code> defines the interface required by a
+ * component that needs to get URI from an URI provider component.
  *
  * <p><strong>Description</strong></p>
  * <p>
@@ -53,10 +53,10 @@ import fr.sorbonne_u.components.interfaces.OfferedI;
  *
  * @author    <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface URIProviderI
-        extends OfferedI {
+public interface URIConsumerI
+        extends RequiredI {
     /**
-     * return a URI considered as a string.
+     * get a new URI.
      *
      * <p><strong>Contract</strong></p>
      *
@@ -66,26 +66,25 @@ public interface URIProviderI
      * </pre>
      *
      * @throws Exception <i>todo.</i>
-     * @return a new URI.
+     * @return the requested URI.
      */
-    String provideURI() throws Exception;
+    String getURI() throws Exception;
 
     /**
-     * return an array of URIs each considered as a string.
+     * get several new URIs at once.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
-     * pre	numberOfRequestedURIs &gt; 0
-     * post	ret != null and ret.length == numberOfRequestedURIs
-     * post	forall i in 0..numberOfRequestedURIs-1, ret[i] != null
+     * pre	numberOfURIs &gt; 0
+     * post	ret != null and ret.length == numberOfURIs
+     * post	forall i in 0..numberOfURIs-1, ret[i] !! null
      * </pre>
      *
-     * @param numberOfRequestedURIs number of URIs to be returned.
+     * @param numberOfURIs number of requested URIs.
      * @throws Exception <i>todo.</i>
-     * @return array of new URIs.
+     * @return array of URIs.
      */
-    String[] provideURIs(int numberOfRequestedURIs)
-            throws Exception;
+    String[] getURIs(int numberOfURIs) throws Exception;
 }
 //-----------------------------------------------------------------------------

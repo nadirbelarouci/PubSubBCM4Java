@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs.interfaces;
+package fr.sorbonne_u.pubsub.basic_cs.connectors;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,57 +34,69 @@ package fr.sorbonne_u.pubsub.components.basic_cs.interfaces;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.interfaces.RequiredI;
+import fr.sorbonne_u.components.connectors.AbstractConnector;
+import fr.sorbonne_u.pubsub.basic_cs.interfaces.URIConsumerI;
+import fr.sorbonne_u.pubsub.basic_cs.interfaces.URIProviderI;
 
 //-----------------------------------------------------------------------------
 
 /**
- * The interface <code>URIConsumerI</code> defines the interface required by a
- * component that needs to get URI from an URI provider component.
+ * The class <code>URIServiceConnector</code> implements a connector between
+ * the <code>URIConsumerI</code> and the <code>URIProviderI</code> interfaces.
  *
  * <p><strong>Description</strong></p>
  * <p>
- * As a RMI remote interface, all of the methods must return
- * <code>RemoteException</code>. The choice here is to throw
- * <code>Exception</code> to cater for potential exceptions
- * thrown by the implementation methods.
+ * It implements the required interface <code>URIConsumerI</code> and in the
+ * method <code>getURI</code>, it calls the corresponding offered method
+ * <code>provideURI</code>.
+ *
+ * <p><strong>Invariant</strong></p>
+ *
+ * <pre>
+ * invariant		true
+ * </pre>
  *
  * <p>Created on : 2014-01-22</p>
  *
- * @author    <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
+ * @author <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface URIConsumerI
-        extends RequiredI {
+public class URIServiceConnector extends AbstractConnector implements URIConsumerI {
     /**
-     * get a new URI.
+     * implement the required interface by simply calling the inbound port with
+     * the corresponding offered method.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
-     * pre	true			// no precondition.
+     * pre	true				// no more preconditions.
      * post	ret != null
      * </pre>
      *
-     * @throws Exception <i>todo.</i>
-     * @return the requested URI.
+     * @see URIConsumerI#getURI()
      */
-    String getURI() throws Exception;
+    @Override
+    public String getURI() throws Exception {
+        System.out.println(this.offeringPortURI + " -> " + this.requiringPortURI);
+        return ((URIProviderI) this.offering).provideURI();
+    }
 
     /**
-     * get several new URIs at once.
+     * implement the required interface by simply calling the inbound port with
+     * the corresponding offered method.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
      * pre	numberOfURIs &gt; 0
      * post	ret != null and ret.length == numberOfURIs
-     * post	forall i in 0..numberOfURIs-1, ret[i] !! null
      * </pre>
      *
-     * @param numberOfURIs number of requested URIs.
-     * @throws Exception <i>todo.</i>
-     * @return array of URIs.
+     * @see URIConsumerI#getURIs(int)
      */
-    String[] getURIs(int numberOfURIs) throws Exception;
+    @Override
+    public String[] getURIs(int numberOfURIs) throws Exception {
+        return ((URIProviderI) this.offering).provideURIs(numberOfURIs);
+
+    }
 }
 //-----------------------------------------------------------------------------

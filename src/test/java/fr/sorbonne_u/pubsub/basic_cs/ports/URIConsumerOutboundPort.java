@@ -1,4 +1,4 @@
-package fr.sorbonne_u.pubsub.components.basic_cs.connectors;
+package fr.sorbonne_u.pubsub.basic_cs.ports;
 
 //Copyright Jacques Malenfant, Sorbonne Universite.
 //
@@ -34,21 +34,16 @@ package fr.sorbonne_u.pubsub.components.basic_cs.connectors;
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.connectors.AbstractConnector;
-import fr.sorbonne_u.pubsub.components.basic_cs.interfaces.URIConsumerI;
-import fr.sorbonne_u.pubsub.components.basic_cs.interfaces.URIProviderI;
+import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.pubsub.basic_cs.interfaces.URIConsumerI;
 
 //-----------------------------------------------------------------------------
 
 /**
- * The class <code>URIServiceConnector</code> implements a connector between
- * the <code>URIConsumerI</code> and the <code>URIProviderI</code> interfaces.
- *
- * <p><strong>Description</strong></p>
- * <p>
- * It implements the required interface <code>URIConsumerI</code> and in the
- * method <code>getURI</code>, it calls the corresponding offered method
- * <code>provideURI</code>.
+ * The class <code>URIConsumerOutboundPort</code> implements the outbound port
+ * of a component that requires an URI service through the
+ * <code>URIConsumerI</code> interface.
  *
  * <p><strong>Invariant</strong></p>
  *
@@ -58,44 +53,80 @@ import fr.sorbonne_u.pubsub.components.basic_cs.interfaces.URIProviderI;
  *
  * <p>Created on : 2014-01-22</p>
  *
- * @author <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
+ * @author    <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class URIServiceConnector extends AbstractConnector implements URIConsumerI {
+public class URIConsumerOutboundPort
+        extends AbstractOutboundPort
+        implements URIConsumerI {
+    private static final long serialVersionUID = 1L;
+
     /**
-     * implement the required interface by simply calling the inbound port with
-     * the corresponding offered method.
+     * create the port with the given URI and the given owner.
+     *
+     * <p><strong>Contract</strong></p>
+     *
+     * <pre>
+     * pre	uri != null and owner != null
+     * post	true			// no postcondition.
+     * </pre>
+     *
+     * @param uri   URI of the port.
+     * @param owner owner of the port.
+     * @throws Exception <i>todo.</i>
+     */
+    public URIConsumerOutboundPort(
+            String uri,
+            ComponentI owner
+    ) throws Exception {
+        super(uri, URIConsumerI.class, owner);
+
+        assert uri != null && owner != null;
+    }
+
+    /**
+     * create the port with the given owner.
+     *
+     * <p><strong>Contract</strong></p>
+     *
+     * <pre>
+     * pre	owner != null
+     * post	true			// no postcondition.
+     * </pre>
+     *
+     * @param owner owner of the port.
+     * @throws Exception <i>todo.</i>
+     */
+    public URIConsumerOutboundPort(ComponentI owner)
+            throws Exception {
+        super(URIConsumerI.class, owner);
+
+        assert owner != null;
+    }
+
+    /**
+     * get an URI by calling the server component through the connector that
+     * implements the required interface.
      *
      * <p><strong>Contract</strong></p>
      *
      * <pre>
      * pre	true				// no more preconditions.
-     * post	ret != null
+     * post	true				// no more postconditions.
      * </pre>
      *
      * @see URIConsumerI#getURI()
      */
     @Override
     public String getURI() throws Exception {
-        return ((URIProviderI) this.offering).provideURI();
+        return ((URIConsumerI) this.connector).getURI();
     }
 
     /**
-     * implement the required interface by simply calling the inbound port with
-     * the corresponding offered method.
-     *
-     * <p><strong>Contract</strong></p>
-     *
-     * <pre>
-     * pre	numberOfURIs &gt; 0
-     * post	ret != null and ret.length == numberOfURIs
-     * </pre>
-     *
      * @see URIConsumerI#getURIs(int)
      */
     @Override
     public String[] getURIs(int numberOfURIs) throws Exception {
-        return ((URIProviderI) this.offering).provideURIs(numberOfURIs);
-
+        return ((URIConsumerI) this.connector).getURIs(numberOfURIs);
     }
 }
 //-----------------------------------------------------------------------------
