@@ -85,7 +85,8 @@ public class PubSub extends AbstractComponent implements BrokerService {
     @Override
     public void subscribe(Topic topic, String subscriberPort) throws Exception {
         this.logMessage("pubsub subscribing: " + subscriberPort + " -> " + topic);
-//        this.broker.subscribe(topic, messageReceiver);
+
+//      this.broker.subscribe(topic, messageReceiver);
 
     }
 

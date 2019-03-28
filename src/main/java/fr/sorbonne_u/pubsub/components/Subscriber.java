@@ -24,6 +24,7 @@ import java.util.Objects;
 public class Subscriber extends AbstractComponent implements SubscriberService, MessageReceiver {
 
     private SubscriberOutBoundPort subscriberOutBoundPort;
+    // TODO add field MessageReceiverInBounPort
 
 
     public Subscriber(String uri, String subOutBoundPortUri, String msgInBoundPortUri) throws Exception {
@@ -33,17 +34,18 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
         Objects.requireNonNull(msgInBoundPortUri);
 
 
-        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
-        this.addPort(subscriberOutBoundPort);
-        this.subscriberOutBoundPort.localPublishPort();
-
 
         PortI p = new MessageReceiverInBoundPort(msgInBoundPortUri, this);
         // add the port to the set of ports of the component
         this.addPort(p);
         // publish the port
         p.publishPort();
-//
+
+        // TODO add inBoundPort URI in SubscriberOutBoundPort constructor
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
+        this.addPort(subscriberOutBoundPort);
+        this.subscriberOutBoundPort.localPublishPort();
+
 
         this.tracer.setTitle("Subscriber");
         this.tracer.setRelativePosition(1, 1);

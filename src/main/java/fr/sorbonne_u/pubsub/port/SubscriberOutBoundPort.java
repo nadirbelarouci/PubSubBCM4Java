@@ -7,6 +7,8 @@ import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
 
 public class SubscriberOutBoundPort extends AbstractOutboundPort implements RequirableSubscriberService {
+    // TODO SubscriberInBoundPort URI field and its Getter;
+
     public SubscriberOutBoundPort(String uri, ComponentI owner) throws Exception {
         super(uri, RequirableSubscriberService.class, owner);
     }
@@ -15,7 +17,6 @@ public class SubscriberOutBoundPort extends AbstractOutboundPort implements Requ
     @Override
     public void subscribe(Topic topic)  {
         ((RequirableSubscriberService) this.connector).subscribe(topic);
-
     }
 
     @Override

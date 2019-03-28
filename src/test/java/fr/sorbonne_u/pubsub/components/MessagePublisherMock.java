@@ -18,7 +18,6 @@ public class MessagePublisherMock implements MessagePublisher {
     @Override
     public void sendMessage(Message message) {
         this.message = message;
-
     }
 
     public Message getMessage() {

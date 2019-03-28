@@ -25,7 +25,7 @@ public class MessageHandlerExecutor extends HandlerExecutor {
         if (observers != null) {
             observers.stream()
                     .parallel()
-                    .filter(MessagePublisher::accept)
+                    .filter(obs-> obs.accept(message))
                     .forEach(obs -> obs.sendMessage(message));
         }
     }

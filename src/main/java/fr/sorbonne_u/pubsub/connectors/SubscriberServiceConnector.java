@@ -5,12 +5,16 @@ import fr.sorbonne_u.pubsub.Filter;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.OfferableBrokerService;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
+import fr.sorbonne_u.pubsub.port.SubscriberOutBoundPort;
 
 public class SubscriberServiceConnector extends AbstractConnector implements RequirableSubscriberService {
 
     @Override
     public void subscribe(Topic topic) {
-
+//      TODO  if(!(this.requiring instanceof SubscriberOutBoundPort))
+//            throw new IllegalStateException();
+//
+//     TODO   String port = ((SubscriberOutBoundPort)this.requiring).getSubsriberInBoundPort();
         try {
             ((OfferableBrokerService) this.offering).subscribe(topic, this.requiringPortURI);
         } catch (Exception e) {

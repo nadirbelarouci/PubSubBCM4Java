@@ -73,7 +73,7 @@ public class CVM extends AbstractCVM {
             // Create an instance of the defined component virtual machine.
             CVM a = new CVM();
             // Execute the application.
-            a.startStandardLifeCycle(10000L);
+            a.startStandardLifeCycle(100000L);
             // Give some time to see the traces (convenience).
             // Simplifies the termination (termination has yet to be treated
             // properly in BCM).

@@ -14,6 +14,7 @@ public class Message {
     private Map<String, Object> properties;
     private long timestamp;
 
+
     private Message(String id, long timestamp, String owner, Serializable content, Topic topic, Map<String, Object> properties) {
         this.id = id;
         this.timestamp = timestamp;
