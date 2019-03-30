@@ -15,6 +15,7 @@ import fr.sorbonne_u.pubsub.interfaces.OfferableMessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
 import fr.sorbonne_u.pubsub.interfaces.SubscriberService;
 import fr.sorbonne_u.pubsub.port.MessageReceiverInBoundPort;
+import fr.sorbonne_u.pubsub.port.SubscriberInBoundPort;
 import fr.sorbonne_u.pubsub.port.SubscriberOutBoundPort;
 
 import java.util.Objects;
@@ -24,7 +25,9 @@ import java.util.Objects;
 public class Subscriber extends AbstractComponent implements SubscriberService, MessageReceiver {
 
     private SubscriberOutBoundPort subscriberOutBoundPort;
-    // TODO add field MessageReceiverInBounPort
+    private SubscriberInBoundPort subscriberInBoundPort;
+    // add field MessageReceiverInBounPort
+    private MessageReceiverInBoundPort messageReceiverInBoundPort;
 
 
     public Subscriber(String uri, String subOutBoundPortUri, String msgInBoundPortUri) throws Exception {
@@ -41,7 +44,8 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
         // publish the port
         p.publishPort();
 
-        // TODO add inBoundPort URI in SubscriberOutBoundPort constructor
+        // add inBoundPort URI in SubscriberOutBoundPort constructor
+        this.subscriberInBoundPort = new SubscriberInBoundPort(subOutBoundPortUri, this);
         this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
         this.addPort(subscriberOutBoundPort);
         this.subscriberOutBoundPort.localPublishPort();

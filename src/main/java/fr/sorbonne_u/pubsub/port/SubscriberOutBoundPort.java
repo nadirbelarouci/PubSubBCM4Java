@@ -8,11 +8,11 @@ import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
 
 public class SubscriberOutBoundPort extends AbstractOutboundPort implements RequirableSubscriberService {
     // TODO SubscriberInBoundPort URI field and its Getter;
+    private String subsriberInBoundPort;
 
     public SubscriberOutBoundPort(String uri, ComponentI owner) throws Exception {
         super(uri, RequirableSubscriberService.class, owner);
     }
-
 
     @Override
     public void subscribe(Topic topic)  {
@@ -35,4 +35,7 @@ public class SubscriberOutBoundPort extends AbstractOutboundPort implements Requ
         ((RequirableSubscriberService) this.connector).unsubscribe();
     }
 
+    public String getSubsriberInBoundPort() {
+        return subsriberInBoundPort;
+    }
 }

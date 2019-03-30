@@ -11,10 +11,10 @@ public class SubscriberServiceConnector extends AbstractConnector implements Req
 
     @Override
     public void subscribe(Topic topic) {
-//      TODO  if(!(this.requiring instanceof SubscriberOutBoundPort))
-//            throw new IllegalStateException();
-//
-//     TODO   String port = ((SubscriberOutBoundPort)this.requiring).getSubsriberInBoundPort();
+        if (!(this.requiring instanceof SubscriberOutBoundPort))
+            throw new IllegalStateException();
+
+        String port = ((SubscriberOutBoundPort) this.requiring).getSubsriberInBoundPort();
         try {
             ((OfferableBrokerService) this.offering).subscribe(topic, this.requiringPortURI);
         } catch (Exception e) {
