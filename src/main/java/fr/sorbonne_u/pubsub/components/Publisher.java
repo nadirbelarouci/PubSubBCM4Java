@@ -5,6 +5,7 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.pubsub.Message;
+import fr.sorbonne_u.pubsub.interfaces.MessagePublisher;
 import fr.sorbonne_u.pubsub.interfaces.PublisherService;
 import fr.sorbonne_u.pubsub.interfaces.RequirablePublisherService;
 import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
@@ -12,7 +13,7 @@ import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
 import java.util.Objects;
 
 @RequiredInterfaces(required = RequirablePublisherService.class)
-public class Publisher extends AbstractComponent implements PublisherService {
+public class Publisher extends AbstractComponent implements PublisherService, MessagePublisher {
 
     private PublisherOutBoundPort publisherOutBoundPort;
 
@@ -60,5 +61,15 @@ public class Publisher extends AbstractComponent implements PublisherService {
     public void publish(Message message) throws Exception {
         this.logMessage("publisher publishing: " + message.getContent() + " -> " + message.getTopic() + ".");
         this.publisherOutBoundPort.publish(message);
+    }
+
+    @Override
+    public void sendMessage(Message message) {
+        this.logMessage("publisher sended a message: " + message.getContent());
+    }
+
+    @Override
+    public boolean accept(Message message) {
+        return false;
     }
 }

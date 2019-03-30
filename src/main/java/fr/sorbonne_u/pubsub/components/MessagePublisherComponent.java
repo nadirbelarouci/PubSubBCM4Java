@@ -19,10 +19,10 @@ import java.util.Objects;
 @RequiredInterfaces(required = RequirableMessagePublisher.class)
 // extends component
 public class MessagePublisherComponent extends Component implements MessagePublisher {
+
     // add MessagePublisherOutBoundPort
     private MessageReceiverOutBoundPort messagePublisherOutBoundPort;
     // TODO add the connection between this outBoundPort and subscriberInBoundPort after this creating component
-    // TODO handle the Predicate<Filter>
 
     @Override
     public void sendMessage(Message message) {

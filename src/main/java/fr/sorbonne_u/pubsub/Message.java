@@ -56,6 +56,14 @@ public class Message {
         return topic;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
