@@ -45,8 +45,8 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
         p.publishPort();
 
         // add inBoundPort URI in SubscriberOutBoundPort constructor
-        this.subscriberInBoundPort = new SubscriberInBoundPort(subOutBoundPortUri, this);
         this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
+        this.subscriberInBoundPort = new SubscriberInBoundPort(subOutBoundPortUri, this, this.subscriberOutBoundPort );
         this.addPort(subscriberOutBoundPort);
         this.subscriberOutBoundPort.localPublishPort();
 
@@ -103,26 +103,26 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     }
 
     @Override
-    public void subscribe(Topic topic) {
+    public void subscribe(Topic topic) throws Exception {
         this.logMessage("subscriber subscribe to a topic: " + topic);
         this.subscriberOutBoundPort.subscribe(topic);
     }
 
     @Override
-    public void subscribe(Topic topic, Filter filter) {
+    public void subscribe(Topic topic, Filter filter) throws Exception {
         this.logMessage("subscriber subscribe to a topic: " + topic);
         this.subscriberOutBoundPort.subscribe(topic, filter);
     }
 
     @Override
-    public void unsubscribe(Topic topic) {
+    public void unsubscribe(Topic topic) throws Exception{
         this.logMessage("subscriber unsubscribe from a topic: " + topic);
         this.subscriberOutBoundPort.unsubscribe(topic);
 
     }
 
     @Override
-    public void unsubscribe() {
+    public void unsubscribe() throws Exception{
         this.logMessage("subscriber unsubscribe from all topics.");
         this.subscriberOutBoundPort.unsubscribe();
 

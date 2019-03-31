@@ -5,6 +5,7 @@ import fr.sorbonne_u.components.connectors.ConnectorI;
 import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.pubsub.Filter;
 import fr.sorbonne_u.pubsub.Topic;
+import fr.sorbonne_u.pubsub.components.Subscriber;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
 
 public class SubscriberInBoundPort extends AbstractInboundPort implements RequirableSubscriberService {
