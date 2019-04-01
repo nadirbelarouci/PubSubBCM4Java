@@ -13,8 +13,12 @@ public class SubscriberInBoundPort extends AbstractInboundPort implements Offera
     }
 
 
+    public SubscriberInBoundPort(ComponentI owner) throws Exception {
+        super(OfferableMessageReceiver.class, owner);
+    }
+
     @Override
-    public void receiveMessage(Message message)throws Exception {
+    public void receiveMessage(Message message) throws Exception {
         this.getOwner().handleRequestSync(
                 new AbstractComponent.AbstractService<Void>() {
                     @Override

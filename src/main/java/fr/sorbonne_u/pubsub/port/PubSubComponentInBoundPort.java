@@ -15,6 +15,10 @@ public class PubSubComponentInBoundPort extends AbstractInboundPort implements O
         super(inBoundPortUri, OfferableBrokerService.class, owner);
     }
 
+    public PubSubComponentInBoundPort(ComponentI owner) throws Exception {
+        super(OfferableBrokerService.class, owner);
+    }
+
 
     @Override
     public void publish(Message message) throws Exception {

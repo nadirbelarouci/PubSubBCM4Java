@@ -11,6 +11,10 @@ public class PublisherOutBoundPort extends AbstractOutboundPort implements Requi
         super(uri, RequirablePublisherService.class, owner);
     }
 
+    public PublisherOutBoundPort(ComponentI owner) throws Exception {
+        super(RequirablePublisherService.class, owner);
+    }
+
     @Override
     public void publish(Message message) throws Exception {
         ((RequirablePublisherService) this.connector).publish(message);

@@ -20,6 +20,8 @@ public class PubSub extends AbstractComponent implements BrokerService {
 
     private Broker broker = Broker.getInstance();
 
+    private PubSubComponentInBoundPort inBoundPort;
+
     public PubSub(String uri, String pubSubInBoundPortUri) throws Exception {
         super(uri, 1, 0);
 
@@ -27,11 +29,27 @@ public class PubSub extends AbstractComponent implements BrokerService {
         Objects.requireNonNull(pubSubInBoundPortUri);
 
 
-        PortI p = new PubSubComponentInBoundPort(pubSubInBoundPortUri, this);
+        inBoundPort = new PubSubComponentInBoundPort(pubSubInBoundPortUri, this);
         // add the port to the set of ports of the component
-        this.addPort(p);
+        this.addPort(inBoundPort);
         // publish the port
-        p.publishPort();
+        inBoundPort.publishPort();
+
+
+        this.tracer.setTitle("pubsub");
+        this.tracer.setRelativePosition(1, 0);
+
+    }
+
+    public PubSub() throws Exception {
+        super(1, 0);
+
+
+        inBoundPort = new PubSubComponentInBoundPort(this);
+        // add the port to the set of ports of the component
+        this.addPort(inBoundPort);
+        // publish the port
+        inBoundPort.publishPort();
 
 
         this.tracer.setTitle("pubsub");
@@ -124,4 +142,7 @@ public class PubSub extends AbstractComponent implements BrokerService {
     }
 
 
+    public String getInBoundPortURI() throws Exception {
+        return inBoundPort.getPortURI();
+    }
 }

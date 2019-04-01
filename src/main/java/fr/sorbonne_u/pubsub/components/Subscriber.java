@@ -9,6 +9,8 @@ import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
+import fr.sorbonne_u.pubsub.connectors.PublisherServiceConnector;
+import fr.sorbonne_u.pubsub.connectors.SubscriberServiceConnector;
 import fr.sorbonne_u.pubsub.interfaces.MessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.OfferableMessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
@@ -40,7 +42,7 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
         // publish the port
         subscriberInBoundPort.publishPort();
 
-        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this,subInBoundPortUri);
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this, subInBoundPortUri);
         this.addPort(subscriberOutBoundPort);
         this.subscriberOutBoundPort.localPublishPort();
 
@@ -49,6 +51,27 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
         this.tracer.setRelativePosition(1, 1);
 
     }
+
+    public Subscriber() throws Exception {
+        super(1, 1);
+
+
+        subscriberInBoundPort = new SubscriberInBoundPort(this);
+        // add the port to the set of ports of the component
+        this.addPort(subscriberInBoundPort);
+        // publish the port
+        subscriberInBoundPort.publishPort();
+
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(this, subscriberInBoundPort.getPortURI());
+        this.addPort(subscriberOutBoundPort);
+        this.subscriberOutBoundPort.localPublishPort();
+
+
+        this.tracer.setTitle("Subscriber");
+        this.tracer.setRelativePosition(1, 1);
+
+    }
+
 
     @Override
     public void start() throws ComponentStartException {
@@ -132,5 +155,12 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     @Override
     public void receiveMessage(Message message) {
         this.logMessage("subscriber received a message: " + message.getContent());
+    }
+
+    public void doPortConnection(String inBoundURI) throws Exception {
+        this.doPortConnection(
+                subscriberOutBoundPort.getPortURI(),
+                inBoundURI,
+                SubscriberServiceConnector.class.getCanonicalName());
     }
 }

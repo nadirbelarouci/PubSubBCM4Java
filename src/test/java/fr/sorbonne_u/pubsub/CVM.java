@@ -38,23 +38,21 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.pubsub.components.PubSub;
 import fr.sorbonne_u.pubsub.components.Publisher;
 import fr.sorbonne_u.pubsub.components.Subscriber;
-import fr.sorbonne_u.pubsub.connectors.PublisherServiceConnector;
-import fr.sorbonne_u.pubsub.connectors.SubscriberServiceConnector;
 
 public class CVM extends AbstractCVM {
-    protected static final String PUBSUB_COMPONENT_URI = "my-URI-pubsub";
-    protected static final String PUBLISHER_COMPONENT_URI_1 = "my-URI-pub1";
-    protected static final String PUBLISHER_COMPONENT_URI_2 = "my-URI-pub2";
-    protected static final String SUBSCRIBER_COMPONENT_URI_1 = "my-URI-sub1";
-
-
-    protected static final String URIPublisherOutboundPortURI_1 = "publisher-out-port1";
-    protected static final String URIPublisherOutboundPortURI_2 = "publisher-out-port2";
-    protected static final String URISubscriberOutboundPortURI_1 = "subscriber-out-port1";
-    protected static final String URISubscriberInboundPortURI_1 = "subscriber-in-port1";
-
-
-    protected static final String URIPubSubInboundPortURI = "pubsub-port";
+//    protected static final String PUBSUB_COMPONENT_URI = "my-URI-pubsub";
+//    protected static final String PUBLISHER_COMPONENT_URI_1 = "my-URI-pub1";
+//    protected static final String PUBLISHER_COMPONENT_URI_2 = "my-URI-pub2";
+//    protected static final String SUBSCRIBER_COMPONENT_URI_1 = "my-URI-sub1";
+//
+//
+//    protected static final String URIPublisherOutboundPortURI_1 = "publisher-out-port1";
+//    protected static final String URIPublisherOutboundPortURI_2 = "publisher-out-port2";
+//    protected static final String URISubscriberOutboundPortURI_1 = "subscriber-out-port1";
+//    protected static final String URISubscriberInboundPortURI_1 = "subscriber-in-port1";
+//
+//
+//    protected static final String URIPubSubInboundPortURI = "pubsub-port";
 
 
     protected PubSub pubSub;
@@ -100,7 +98,7 @@ public class CVM extends AbstractCVM {
         assert !this.deploymentDone();
 
 
-        this.pubSub = new PubSub(PUBSUB_COMPONENT_URI, URIPubSubInboundPortURI);
+        this.pubSub = new PubSub();
 
         this.pubSub.toggleTracing();
         this.pubSub.toggleLogging();
@@ -108,19 +106,19 @@ public class CVM extends AbstractCVM {
 
         this.deployedComponents.add(pubSub);
 
-        this.publisher1 = new Publisher(PUBLISHER_COMPONENT_URI_1, URIPublisherOutboundPortURI_1);
+        this.publisher1 = new Publisher();
         this.publisher1.toggleTracing();
         this.publisher1.toggleLogging();
         this.deployedComponents.add(publisher1);
 
 
-        this.publisher2 = new Publisher(PUBLISHER_COMPONENT_URI_2, URIPublisherOutboundPortURI_2);
+        this.publisher2 = new Publisher();
         this.publisher2.toggleTracing();
         this.publisher2.toggleLogging();
         this.deployedComponents.add(publisher2);
 
 
-        this.subscriber1 = new Subscriber(SUBSCRIBER_COMPONENT_URI_1, URISubscriberOutboundPortURI_1, URISubscriberInboundPortURI_1);
+        this.subscriber1 = new Subscriber();
         this.subscriber1.toggleTracing();
         this.subscriber1.toggleLogging();
         this.deployedComponents.add(subscriber1);
@@ -130,24 +128,12 @@ public class CVM extends AbstractCVM {
         // Connection phase
         // --------------------------------------------------------------------
 
-        this.subscriber1.doPortConnection(
-                URISubscriberOutboundPortURI_1,
-                URIPubSubInboundPortURI,
-                SubscriberServiceConnector.class.getCanonicalName());
+        this.subscriber1.doPortConnection(pubSub.getInBoundPortURI());
 
 
         // do the connection
-        this.publisher1.doPortConnection(
-                URIPublisherOutboundPortURI_1,
-                URIPubSubInboundPortURI,
-                PublisherServiceConnector.class.getCanonicalName());
-//
-//
-//        // do the connection
-        this.publisher2.doPortConnection(
-                URIPublisherOutboundPortURI_2,
-                URIPubSubInboundPortURI,
-                PublisherServiceConnector.class.getCanonicalName());
+        this.publisher1.doPortConnection(pubSub.getInBoundPortURI());
+        this.publisher2.doPortConnection(pubSub.getInBoundPortURI());
 
 
         super.deploy();
@@ -171,7 +157,6 @@ public class CVM extends AbstractCVM {
                 .build();
 
         publisher2.publish(msg2);
-
 
 
     }

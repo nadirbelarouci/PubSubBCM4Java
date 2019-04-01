@@ -5,6 +5,7 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.pubsub.Message;
+import fr.sorbonne_u.pubsub.connectors.PublisherServiceConnector;
 import fr.sorbonne_u.pubsub.interfaces.PublisherService;
 import fr.sorbonne_u.pubsub.interfaces.RequirablePublisherService;
 import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
@@ -30,13 +31,26 @@ public class Publisher extends AbstractComponent implements PublisherService {
 
     }
 
+    public Publisher() throws Exception {
+        super(1, 1);
+
+
+        this.publisherOutBoundPort = new PublisherOutBoundPort(this);
+        this.addPort(publisherOutBoundPort);
+        this.publisherOutBoundPort.localPublishPort();
+
+        this.tracer.setTitle("Publisher");
+        this.tracer.setRelativePosition(1, 2);
+
+    }
+
+
     @Override
     public void start() throws ComponentStartException {
         super.start();
         this.logMessage("starting publisher component.");
 
     }
-
 
 
     /**
@@ -60,5 +74,12 @@ public class Publisher extends AbstractComponent implements PublisherService {
     public void publish(Message message) throws Exception {
         this.logMessage("publisher publishing: " + message.getContent() + " -> " + message.getTopic() + ".");
         this.publisherOutBoundPort.publish(message);
+    }
+
+    public void doPortConnection(String inBoundURI) throws Exception {
+        super.doPortConnection(
+                publisherOutBoundPort.getPortURI(),
+                inBoundURI,
+                PublisherServiceConnector.class.getCanonicalName());
     }
 }
