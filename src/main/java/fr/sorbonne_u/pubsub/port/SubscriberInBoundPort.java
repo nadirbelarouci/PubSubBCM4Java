@@ -7,8 +7,8 @@ import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.interfaces.MessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.OfferableMessageReceiver;
 
-public class MessageReceiverInBoundPort extends AbstractInboundPort implements OfferableMessageReceiver {
-    public MessageReceiverInBoundPort(String inBoundPortUri, ComponentI owner) throws Exception {
+public class SubscriberInBoundPort extends AbstractInboundPort implements OfferableMessageReceiver {
+    public SubscriberInBoundPort(String inBoundPortUri, ComponentI owner) throws Exception {
         super(inBoundPortUri, OfferableMessageReceiver.class, owner);
     }
 

@@ -1,8 +1,9 @@
 package fr.sorbonne_u.pubsub;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Topic {
+public class Topic implements Serializable {
     private final String name;
 
     private Topic(String name) {

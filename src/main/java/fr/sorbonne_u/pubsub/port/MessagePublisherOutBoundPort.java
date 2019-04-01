@@ -11,6 +11,10 @@ public class MessagePublisherOutBoundPort extends AbstractOutboundPort implement
         super(uri, RequirableMessagePublisher.class, owner);
     }
 
+    public MessagePublisherOutBoundPort(ComponentI owner) throws Exception {
+        super(RequirableMessagePublisher.class, owner);
+    }
+
     @Override
     public void sendMessage(Message message) {
         ((RequirableMessagePublisher) this.connector).sendMessage(message);

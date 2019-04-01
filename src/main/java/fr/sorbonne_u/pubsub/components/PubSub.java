@@ -6,7 +6,6 @@ import fr.sorbonne_u.components.annotations.OfferedInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
-import fr.sorbonne_u.pubsub.Filter;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.BrokerService;
@@ -14,6 +13,7 @@ import fr.sorbonne_u.pubsub.interfaces.OfferableBrokerService;
 import fr.sorbonne_u.pubsub.port.PubSubComponentInBoundPort;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @OfferedInterfaces(offered = OfferableBrokerService.class)
 public class PubSub extends AbstractComponent implements BrokerService {
@@ -79,39 +79,48 @@ public class PubSub extends AbstractComponent implements BrokerService {
     @Override
     public void publish(Message message) throws Exception {
         this.logMessage("pubsub publishing: " + message.getContent() + " -> " + message.getTopic());
-//        broker.publish(message);
+        broker.publish(message);
     }
 
     @Override
     public void subscribe(Topic topic, String subscriberPort) throws Exception {
         this.logMessage("pubsub subscribing: " + subscriberPort + " -> " + topic);
 
-//      this.broker.subscribe(topic, messageReceiver);
+
+        this.broker.subscribe(topic, MessagePublisherComponent.newBuilder()
+                .setSubInBoundPortUri(subscriberPort)
+                .build()
+        );
 
     }
 
     @Override
-    public void subscribe(Topic topic, String subscriberPort, Filter filter) throws Exception {
+    public void subscribe(Topic topic, String subscriberPort, Predicate<Message> filter) throws Exception {
         this.logMessage("pubsub subscribing: " + subscriberPort + " -> " + topic);
 
+        this.broker.subscribe(topic, MessagePublisherComponent.newBuilder()
+                .setSubInBoundPortUri(subscriberPort)
+                .setFilter(topic, filter)
+                .build()
+        );
+
     }
 
     @Override
-    public void updateFilter(String subscriberPort, Filter filter) throws Exception {
-
+    public void updateFilter(Topic topic, String subscriberPort, Predicate<Message> filter) throws Exception {
+        this.broker.updateFilter(topic, subscriberPort, filter);
     }
 
     @Override
     public void unsubscribe(Topic topic, String subscriberPort) throws Exception {
         this.logMessage("pubsub removing " + subscriberPort + " subscription from :" + topic);
-//        broker.unsubscribe(topic, messageReceiver);
+        broker.unsubscribe(topic, subscriberPort);
     }
 
     @Override
     public void unsubscribe(String subscriberPort) throws Exception {
         this.logMessage("pubsub removing " + subscriberPort + " subscription from all topics");
-
-//        broker.unsubscribe(messageReceiver);
+        broker.unsubscribe(subscriberPort);
     }
 
 

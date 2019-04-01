@@ -26,6 +26,11 @@ public class MessagePublisherMock implements MessagePublisher {
     }
 
     @Override
+    public String getKey() {
+        return name;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof MessagePublisherMock)) return false;

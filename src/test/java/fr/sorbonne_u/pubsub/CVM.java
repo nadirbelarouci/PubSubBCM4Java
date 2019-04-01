@@ -130,6 +130,12 @@ public class CVM extends AbstractCVM {
         // Connection phase
         // --------------------------------------------------------------------
 
+        this.subscriber1.doPortConnection(
+                URISubscriberOutboundPortURI_1,
+                URIPubSubInboundPortURI,
+                SubscriberServiceConnector.class.getCanonicalName());
+
+
         // do the connection
         this.publisher1.doPortConnection(
                 URIPublisherOutboundPortURI_1,
@@ -142,11 +148,6 @@ public class CVM extends AbstractCVM {
                 URIPublisherOutboundPortURI_2,
                 URIPubSubInboundPortURI,
                 PublisherServiceConnector.class.getCanonicalName());
-
-        this.subscriber1.doPortConnection(
-                URISubscriberOutboundPortURI_1,
-                URIPubSubInboundPortURI,
-                SubscriberServiceConnector.class.getCanonicalName());
 
 
         super.deploy();
@@ -161,6 +162,8 @@ public class CVM extends AbstractCVM {
                 .setContent("Hello from publisher 1")
                 .build();
 
+        subscriber1.subscribe(Topic.newBuilder("hello-world").build());
+
         publisher1.publish(msg1);
 
         Message msg2 = Message.newBuilder("hello-world")
@@ -169,7 +172,6 @@ public class CVM extends AbstractCVM {
 
         publisher2.publish(msg2);
 
-        subscriber1.subscribe(Topic.newBuilder("hello-world").build());
 
 
     }

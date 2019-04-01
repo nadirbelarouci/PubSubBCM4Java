@@ -1,16 +1,18 @@
 package fr.sorbonne_u.pubsub.components;
 
+import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.MessagePublisher;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Predicate;
 
 public class SubscriberHandlerExecutor extends HandlerExecutor {
-    private final ConcurrentHashMap<Topic, Set<MessagePublisher>> subscribers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Topic, ConcurrentHashMap<String, MessagePublisher>> subscribers = new ConcurrentHashMap<>();
 
     protected SubscriberHandlerExecutor() {
         super();
@@ -20,8 +22,9 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
         super(executor);
     }
 
-    public Set<MessagePublisher> getSubscribers(Topic topic) {
-        return subscribers.get(topic);
+    public Collection<MessagePublisher> getSubscribers(Topic topic) {
+        Map<String, MessagePublisher> subs = subscribers.get(topic);
+        return subs == null ? null : subs.values();
     }
 
     public CompletableFuture<Void> subscribe(Topic topic, MessagePublisher obs) {
@@ -29,43 +32,62 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
     }
 
     private void addObserver(Topic topic, MessagePublisher obs) {
-        subscribers.computeIfAbsent(topic, t -> ConcurrentHashMap.newKeySet())
-                .add(obs);
+        subscribers.computeIfAbsent(topic, t -> new ConcurrentHashMap<>())
+                .put(obs.getKey(), obs);
     }
 
     public CompletableFuture<Void> unsubscribe(Topic topic, MessagePublisher obs) {
-        return CompletableFuture.runAsync(() -> deleteObserver(topic, obs), super.executor);
-
+        return CompletableFuture.runAsync(() -> deleteObserver(topic, obs.getKey()), super.executor);
     }
 
-    private void deleteObserver(Topic topic, MessagePublisher obs) {
+    public CompletableFuture<Void> unsubscribe(Topic topic, String subId) {
+        return CompletableFuture.runAsync(() -> deleteObserver(topic, subId), super.executor);
+    }
+
+    private void deleteObserver(Topic topic, String subId) {
         subscribers.computeIfPresent(topic, (t, subs) -> {
-            subs.remove(obs);
+            subs.remove(subId);
             return subs;
         });
     }
 
     public CompletableFuture<Void> unsubscribe(MessagePublisher obs) {
-        return CompletableFuture.runAsync(() -> deleteObserver(obs), super.executor);
+        return CompletableFuture.runAsync(() -> deleteObserver(obs.getKey()), super.executor);
     }
 
-    private void deleteObserver(MessagePublisher obs) {
+    public CompletableFuture<Void> unsubscribe(String subId) {
+        return CompletableFuture.runAsync(() -> deleteObserver(subId), super.executor);
+    }
+
+    private void deleteObserver(String subId) {
         subscribers.keySet()
                 .parallelStream()
-                .forEach(topic -> deleteObserver(topic, obs));
+                .forEach(topic -> deleteObserver(topic, subId));
     }
 
-    public boolean isSubscribed(MessagePublisher obs) {
+    public CompletableFuture<Void> updateFilter(Topic topic, String subId, Predicate<Message> filter) {
+        return CompletableFuture.runAsync(() -> setFilter(topic, subId, filter), super.executor);
+    }
+
+    public void setFilter(Topic topic, String subId, Predicate<Message> filter) {
+        ConcurrentHashMap<String, MessagePublisher> subs = subscribers.get(topic);
+        subs.computeIfPresent(subId, (key, obs) -> {
+            obs.setFilter(topic, filter);
+            return obs;
+        });
+    }
+
+    protected boolean isSubscribed(MessagePublisher obs) {
         return subscribers.entrySet()
                 .parallelStream()
                 .map(Map.Entry::getValue)
-                .anyMatch(set -> set.contains(obs));
+                .anyMatch(set -> set.containsKey(obs.getKey()));
 
     }
 
     protected boolean isSubscribed(Topic topic, MessagePublisher obs) {
-        Set<MessagePublisher> observers = getSubscribers(topic);
-        return observers != null && observers.contains(obs);
+        ConcurrentHashMap<String, MessagePublisher> observers = subscribers.get(topic);
+        return observers != null && observers.containsKey(obs.getKey());
     }
 
     protected boolean hasTopic(Topic topic) {
@@ -79,4 +101,6 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
     public void clear() {
         subscribers.clear();
     }
+
+
 }

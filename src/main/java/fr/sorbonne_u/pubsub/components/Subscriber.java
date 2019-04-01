@@ -7,42 +7,40 @@ import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
-import fr.sorbonne_u.pubsub.Filter;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 import fr.sorbonne_u.pubsub.interfaces.MessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.OfferableMessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.RequirableSubscriberService;
 import fr.sorbonne_u.pubsub.interfaces.SubscriberService;
-import fr.sorbonne_u.pubsub.port.MessageReceiverInBoundPort;
+import fr.sorbonne_u.pubsub.port.SubscriberInBoundPort;
 import fr.sorbonne_u.pubsub.port.SubscriberOutBoundPort;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @RequiredInterfaces(required = RequirableSubscriberService.class)
 @OfferedInterfaces(offered = OfferableMessageReceiver.class)
 public class Subscriber extends AbstractComponent implements SubscriberService, MessageReceiver {
 
     private SubscriberOutBoundPort subscriberOutBoundPort;
-    // TODO add field MessageReceiverInBounPort
+    private SubscriberInBoundPort subscriberInBoundPort;
 
 
-    public Subscriber(String uri, String subOutBoundPortUri, String msgInBoundPortUri) throws Exception {
+    public Subscriber(String uri, String subOutBoundPortUri, String subInBoundPortUri) throws Exception {
         super(uri, 1, 1);
         Objects.requireNonNull(uri);
         Objects.requireNonNull(subOutBoundPortUri);
-        Objects.requireNonNull(msgInBoundPortUri);
+        Objects.requireNonNull(subInBoundPortUri);
 
 
-
-        PortI p = new MessageReceiverInBoundPort(msgInBoundPortUri, this);
+        subscriberInBoundPort = new SubscriberInBoundPort(subInBoundPortUri, this);
         // add the port to the set of ports of the component
-        this.addPort(p);
+        this.addPort(subscriberInBoundPort);
         // publish the port
-        p.publishPort();
+        subscriberInBoundPort.publishPort();
 
-        // TODO add inBoundPort URI in SubscriberOutBoundPort constructor
-        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this);
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this,subInBoundPortUri);
         this.addPort(subscriberOutBoundPort);
         this.subscriberOutBoundPort.localPublishPort();
 
@@ -105,9 +103,16 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     }
 
     @Override
-    public void subscribe(Topic topic, Filter filter) {
+    public void subscribe(Topic topic, Predicate<Message> filter) {
         this.logMessage("subscriber subscribe to a topic: " + topic);
         this.subscriberOutBoundPort.subscribe(topic, filter);
+    }
+
+    @Override
+    public void updateFilter(Topic topic, Predicate<Message> filter) {
+        this.logMessage("update filter of a topic: " + topic);
+        this.subscriberOutBoundPort.updateFilter(topic, filter);
+
     }
 
     @Override

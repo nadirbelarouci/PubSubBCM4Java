@@ -1,13 +1,16 @@
 package fr.sorbonne_u.pubsub.interfaces;
 
-import fr.sorbonne_u.pubsub.Filter;
+import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
 
-public interface SubscriberService {
-    void subscribe(Topic topic) ;
-    // TODO replace Filter with Predicate<Filter>
-    void subscribe(Topic topic, Filter filter);
+import java.util.function.Predicate;
 
+public interface SubscriberService {
+    void subscribe(Topic topic);
+
+    void subscribe(Topic topic, Predicate<Message> filter);
+
+    void updateFilter(Topic topic, Predicate<Message> filter);
 
     void unsubscribe(Topic topic);
 

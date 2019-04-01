@@ -7,6 +7,7 @@ import fr.sorbonne_u.pubsub.interfaces.MessagePublisher;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Predicate;
 
 public class Broker {
 
@@ -56,11 +57,22 @@ public class Broker {
         return subHandlerExec.subscribe(topic, obs);
     }
 
+    public CompletableFuture<Void> updateFilter(Topic topic, String subscriberInBoundPortURI, Predicate<Message> filter) {
+        return subHandlerExec.updateFilter(topic, subscriberInBoundPortURI, filter);
+    }
+
     public CompletableFuture<Void> unsubscribe(Topic topic, MessagePublisher obs) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
         Objects.requireNonNull(obs, "The MessagePublisher cannot be null.");
 
         return subHandlerExec.unsubscribe(topic, obs);
+    }
+
+    public CompletableFuture<Void> unsubscribe(Topic topic, String subId) {
+        Objects.requireNonNull(topic, "The topic cannot be null.");
+        Objects.requireNonNull(subId, "The subscriber Id cannot be null.");
+
+        return subHandlerExec.unsubscribe(topic, subId);
     }
 
 
@@ -69,12 +81,18 @@ public class Broker {
         return subHandlerExec.unsubscribe(obs);
     }
 
+    public CompletableFuture<Void> unsubscribe(String subId) {
+        Objects.requireNonNull(subId);
+        return subHandlerExec.unsubscribe(subId);
+    }
+
 
     public CompletableFuture<Void> removeTopic(Topic topic) {
         Objects.requireNonNull(topic, "The topic cannot be null.");
 
         return subHandlerExec.removeTopic(topic);
     }
+
 
     protected boolean isSubscribed(MessagePublisher obs) {
         Objects.requireNonNull(obs, "The observer cannot be null.");
@@ -103,5 +121,6 @@ public class Broker {
     protected void reboot() {
         subHandlerExec.clear();
     }
+
 
 }

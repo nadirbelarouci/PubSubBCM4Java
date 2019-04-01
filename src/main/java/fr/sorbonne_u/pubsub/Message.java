@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 public class Message {
     private final String id;
@@ -68,10 +67,6 @@ public class Message {
     }
 
 
-    protected boolean filter(String key, Predicate<Object> predicate) {
-        return predicate.test(properties.get(key));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,6 +78,39 @@ public class Message {
                 Objects.equals(content, message.content) &&
                 Objects.equals(properties, message.properties) &&
                 Objects.equals(topic, message.topic);
+    }
+
+
+    public int getInt(String key) {
+        return (int) properties.get(key);
+    }
+
+    public byte getByte(String key) {
+        return (byte) properties.get(key);
+    }
+
+    public short getShort(String key) {
+        return (short) properties.get(key);
+    }
+
+    public long getLong(String key) {
+        return (long) properties.get(key);
+    }
+
+    public float getFloat(String key) {
+        return (float) properties.get(key);
+    }
+
+    public double getDouble(String key) {
+        return (double) properties.get(key);
+    }
+
+    public boolean getBoolean(String key) {
+        return (boolean) properties.get(key);
+    }
+
+    public String getString(String key) {
+        return (String) properties.get(key);
     }
 
     @Override
@@ -182,6 +210,7 @@ public class Message {
             return new Message(id, timestamp == -1 ? System.currentTimeMillis() : timestamp,
                     owner, content, topic, properties);
         }
+
     }
 
 }
