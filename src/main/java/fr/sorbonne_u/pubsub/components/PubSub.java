@@ -1,148 +1,80 @@
 package fr.sorbonne_u.pubsub.components;
 
-
-import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.annotations.OfferedInterfaces;
-import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import fr.sorbonne_u.components.exceptions.ComponentStartException;
-import fr.sorbonne_u.components.ports.PortI;
+import fr.sorbonne_u.components.annotations.RequiredInterfaces;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
-import fr.sorbonne_u.pubsub.interfaces.BrokerService;
-import fr.sorbonne_u.pubsub.interfaces.OfferableBrokerService;
-import fr.sorbonne_u.pubsub.port.PubSubComponentInBoundPort;
+import fr.sorbonne_u.pubsub.connectors.PublisherServiceConnector;
+import fr.sorbonne_u.pubsub.connectors.SubscriberServiceConnector;
+import fr.sorbonne_u.pubsub.interfaces.*;
+import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
+import fr.sorbonne_u.pubsub.port.SubscriberInBoundPort;
+import fr.sorbonne_u.pubsub.port.SubscriberOutBoundPort;
 
-import java.util.Objects;
-import java.util.function.Predicate;
+@OfferedInterfaces(offered = {OfferableBrokerService.class, OfferableMessageReceiver.class})
+@RequiredInterfaces(required = {RequirableMessagePublisher.class, RequirableSubscriberService.class, RequirablePublisherService.class})
+public class PubSub extends MasterPubSub implements MessageReceiver {
+    private SubscriberOutBoundPort subscriberOutBoundPort;
+    private PublisherOutBoundPort publisherOutBoundPort;
 
-@OfferedInterfaces(offered = OfferableBrokerService.class)
-public class PubSub extends AbstractComponent implements BrokerService {
-
-    private Broker broker = Broker.getInstance();
-
-    private PubSubComponentInBoundPort inBoundPort;
-
-    public PubSub(String uri, String pubSubInBoundPortUri) throws Exception {
-        super(uri, 1, 0);
-
-        Objects.requireNonNull(uri);
-        Objects.requireNonNull(pubSubInBoundPortUri);
-
-
-        inBoundPort = new PubSubComponentInBoundPort(pubSubInBoundPortUri, this);
-        // add the port to the set of ports of the component
-        this.addPort(inBoundPort);
-        // publish the port
-        inBoundPort.publishPort();
-
-
-        this.tracer.setTitle("pubsub");
-        this.tracer.setRelativePosition(1, 0);
-
+    public PubSub(String uri) throws Exception {
+        super(uri);
     }
 
     public PubSub() throws Exception {
-        super(1, 0);
+        super();
 
-
-        inBoundPort = new PubSubComponentInBoundPort(this);
+        SubscriberInBoundPort subscriberInBoundPort = new SubscriberInBoundPort(this);
         // add the port to the set of ports of the component
-        this.addPort(inBoundPort);
+        this.addPort(subscriberInBoundPort);
         // publish the port
-        inBoundPort.publishPort();
+        subscriberInBoundPort.publishPort();
+
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(this, subscriberInBoundPort.getPortURI());
+        this.addPort(subscriberOutBoundPort);
+        this.subscriberOutBoundPort.localPublishPort();
 
 
-        this.tracer.setTitle("pubsub");
-        this.tracer.setRelativePosition(1, 0);
+        this.publisherOutBoundPort = new PublisherOutBoundPort(this);
+        this.addPort(publisherOutBoundPort);
+        this.publisherOutBoundPort.localPublishPort();
+
 
     }
-
-    @Override
-    public void start() throws ComponentStartException {
-        super.start();
-        this.logMessage("starting pubsub component.");
-    }
-
 
     @Override
     public void finalise() throws Exception {
         super.finalise();
-        this.logMessage("stopping pubsub component.");
+        this.subscriberOutBoundPort.doDisconnection();
+        this.subscriberOutBoundPort.unpublishPort();
+        this.publisherOutBoundPort.doDisconnection();
+        this.publisherOutBoundPort.unpublishPort();
     }
-
-
-    @Override
-    public void shutdown() throws ComponentShutdownException {
-        try {
-            PortI[] p = this.findPortsFromInterface(OfferableBrokerService.class);
-            p[0].unpublishPort();
-        } catch (Exception e) {
-            throw new ComponentShutdownException(e);
-        }
-        super.shutdown();
-    }
-
-    @Override
-    public void shutdownNow() throws ComponentShutdownException {
-        try {
-            PortI[] p = this.findPortsFromInterface(OfferableBrokerService.class);
-            p[0].unpublishPort();
-        } catch (Exception e) {
-            throw new ComponentShutdownException(e);
-        }
-        super.shutdownNow();
-    }
-
 
     @Override
     public void publish(Message message) throws Exception {
-        this.logMessage("pubsub publishing: " + message.getContent() + " -> " + message.getTopic());
+        this.publisherOutBoundPort.publish(message);
+    }
+
+    @Override
+    public void receiveMessage(Message message) throws Exception {
         broker.publish(message);
     }
 
-    @Override
-    public void subscribe(Topic topic, String subscriberPort) throws Exception {
-        this.logMessage("pubsub subscribing: " + subscriberPort + " -> " + topic);
-
-
-        this.broker.subscribe(topic, MessagePublisherComponent.newBuilder()
-                .setSubInBoundPortUri(subscriberPort)
-                .build()
-        );
-
+    public void subscribe() {
+        subscriberOutBoundPort.subscribe(Topic.ROOT);
     }
 
-    @Override
-    public void subscribe(Topic topic, String subscriberPort, Predicate<Message> filter) throws Exception {
-        this.logMessage("pubsub subscribing: " + subscriberPort + " -> " + topic);
+    public void doPortConnection(String inBoundURI) throws Exception {
+        this.doPortConnection(
+                subscriberOutBoundPort.getPortURI(),
+                inBoundURI,
+                SubscriberServiceConnector.class.getCanonicalName());
 
-        this.broker.subscribe(topic, MessagePublisherComponent.newBuilder()
-                .setSubInBoundPortUri(subscriberPort)
-                .setFilter(topic, filter)
-                .build()
-        );
-
+        super.doPortConnection(
+                publisherOutBoundPort.getPortURI(),
+                inBoundURI,
+                PublisherServiceConnector.class.getCanonicalName());
     }
 
-    @Override
-    public void updateFilter(Topic topic, String subscriberPort, Predicate<Message> filter) throws Exception {
-        this.broker.updateFilter(topic, subscriberPort, filter);
-    }
-
-    @Override
-    public void unsubscribe(Topic topic, String subscriberPort) throws Exception {
-        this.logMessage("pubsub removing " + subscriberPort + " subscription from :" + topic);
-        broker.unsubscribe(topic, subscriberPort);
-    }
-
-    @Override
-    public void unsubscribe(String subscriberPort) throws Exception {
-        this.logMessage("pubsub removing " + subscriberPort + " subscription from all topics");
-        broker.unsubscribe(subscriberPort);
-    }
-
-
-    public String getInBoundPortURI() throws Exception {
-        return inBoundPort.getPortURI();
-    }
 }

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Message {
+public class Message implements Serializable {
     private final String id;
     private final String owner;
     private final Serializable content;
@@ -132,7 +132,7 @@ public class Message {
         }
 
         private MessageBuilder(String topic) {
-            setTopic(Topic.newBuilder(topic).build());
+            setTopic(Topic.of(topic));
         }
 
         public MessageBuilder setTopic(Topic topic) {

@@ -18,7 +18,7 @@ public class Broker {
     private SubscriberHandlerExecutor subHandlerExec;
 
 
-    private Broker() {
+    protected Broker() {
         this.msgHandlerExec = new MessageHandlerExecutor();
         this.subHandlerExec = new SubscriberHandlerExecutor();
     }
@@ -46,6 +46,7 @@ public class Broker {
 
     public CompletableFuture<Void> publish(Message message) {
         Objects.requireNonNull(message, "The Message cannot be null");
+
         return msgHandlerExec.submit(message, subHandlerExec.getSubscribers(message.getTopic()));
     }
 
@@ -114,8 +115,10 @@ public class Broker {
 
     public void shutdown() {
         msgHandlerExec.shutdown();
-        subHandlerExec.clear();
+
         subHandlerExec.shutdown();
+
+
     }
 
     protected void reboot() {

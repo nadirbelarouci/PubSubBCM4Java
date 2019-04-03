@@ -10,19 +10,16 @@ import fr.sorbonne_u.pubsub.interfaces.PublisherService;
 import fr.sorbonne_u.pubsub.interfaces.RequirablePublisherService;
 import fr.sorbonne_u.pubsub.port.PublisherOutBoundPort;
 
-import java.util.Objects;
-
 @RequiredInterfaces(required = RequirablePublisherService.class)
 public class Publisher extends AbstractComponent implements PublisherService {
 
     private PublisherOutBoundPort publisherOutBoundPort;
 
-    public Publisher(String uri, String outBoundPortUri) throws Exception {
+    public Publisher(String uri) throws Exception {
         super(uri, 1, 1);
-        Objects.requireNonNull(uri);
-        Objects.requireNonNull(outBoundPortUri);
 
-        this.publisherOutBoundPort = new PublisherOutBoundPort(outBoundPortUri, this);
+
+        this.publisherOutBoundPort = new PublisherOutBoundPort(this);
         this.addPort(publisherOutBoundPort);
         this.publisherOutBoundPort.localPublishPort();
 
@@ -41,6 +38,7 @@ public class Publisher extends AbstractComponent implements PublisherService {
 
         this.tracer.setTitle("Publisher");
         this.tracer.setRelativePosition(1, 2);
+
 
     }
 

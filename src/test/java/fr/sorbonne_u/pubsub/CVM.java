@@ -35,27 +35,14 @@ package fr.sorbonne_u.pubsub;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.cvm.AbstractCVM;
-import fr.sorbonne_u.pubsub.components.PubSub;
+import fr.sorbonne_u.pubsub.components.MasterPubSub;
 import fr.sorbonne_u.pubsub.components.Publisher;
 import fr.sorbonne_u.pubsub.components.Subscriber;
 
 public class CVM extends AbstractCVM {
-//    protected static final String PUBSUB_COMPONENT_URI = "my-URI-pubsub";
-//    protected static final String PUBLISHER_COMPONENT_URI_1 = "my-URI-pub1";
-//    protected static final String PUBLISHER_COMPONENT_URI_2 = "my-URI-pub2";
-//    protected static final String SUBSCRIBER_COMPONENT_URI_1 = "my-URI-sub1";
-//
-//
-//    protected static final String URIPublisherOutboundPortURI_1 = "publisher-out-port1";
-//    protected static final String URIPublisherOutboundPortURI_2 = "publisher-out-port2";
-//    protected static final String URISubscriberOutboundPortURI_1 = "subscriber-out-port1";
-//    protected static final String URISubscriberInboundPortURI_1 = "subscriber-in-port1";
-//
-//
-//    protected static final String URIPubSubInboundPortURI = "pubsub-port";
 
 
-    protected PubSub pubSub;
+    protected MasterPubSub masterPubSub;
 
 
     protected Publisher publisher1;
@@ -98,13 +85,13 @@ public class CVM extends AbstractCVM {
         assert !this.deploymentDone();
 
 
-        this.pubSub = new PubSub();
+        this.masterPubSub = new MasterPubSub();
 
-        this.pubSub.toggleTracing();
-        this.pubSub.toggleLogging();
+        this.masterPubSub.toggleTracing();
+        this.masterPubSub.toggleLogging();
 
 
-        this.deployedComponents.add(pubSub);
+        this.deployedComponents.add(masterPubSub);
 
         this.publisher1 = new Publisher();
         this.publisher1.toggleTracing();
@@ -128,12 +115,9 @@ public class CVM extends AbstractCVM {
         // Connection phase
         // --------------------------------------------------------------------
 
-        this.subscriber1.doPortConnection(pubSub.getInBoundPortURI());
-
-
-        // do the connection
-        this.publisher1.doPortConnection(pubSub.getInBoundPortURI());
-        this.publisher2.doPortConnection(pubSub.getInBoundPortURI());
+        this.subscriber1.doPortConnection(masterPubSub.getInBoundPortURI());
+        this.publisher1.doPortConnection(masterPubSub.getInBoundPortURI());
+        this.publisher2.doPortConnection(masterPubSub.getInBoundPortURI());
 
 
         super.deploy();
@@ -148,7 +132,7 @@ public class CVM extends AbstractCVM {
                 .setContent("Hello from publisher 1")
                 .build();
 
-        subscriber1.subscribe(Topic.newBuilder("hello-world").build());
+        subscriber1.subscribe(Topic.of("hello-world"));
 
         publisher1.publish(msg1);
 
@@ -157,7 +141,6 @@ public class CVM extends AbstractCVM {
                 .build();
 
         publisher2.publish(msg2);
-
 
     }
 
@@ -169,7 +152,7 @@ public class CVM extends AbstractCVM {
         // print logs on files, if activated
         this.publisher1.printExecutionLogOnFile("publisher1");
         this.publisher2.printExecutionLogOnFile("publisher2");
-        this.pubSub.printExecutionLogOnFile("pubsub");
+        this.masterPubSub.printExecutionLogOnFile("pubsub");
 
         super.shutdown();
     }

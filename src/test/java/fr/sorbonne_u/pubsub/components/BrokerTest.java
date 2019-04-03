@@ -15,9 +15,9 @@ import static org.junit.Assume.assumeTrue;
 
 public class BrokerTest {
 
-    private final static Topic TOPIC1 = Topic.newBuilder("TOPIC1").build();
-    private final static Topic TOPIC2 = Topic.newBuilder("TOPIC2").build();
-    private final static Topic TOPIC3 = Topic.newBuilder("TOPIC3").build();
+    private final static Topic TOPIC1 = Topic.of("TOPIC1");
+    private final static Topic TOPIC2 = Topic.of("TOPIC2");
+    private final static Topic TOPIC3 = Topic.of("TOPIC3");
 
 
     private List<MessagePublisherMock> observers = new ArrayList<>();

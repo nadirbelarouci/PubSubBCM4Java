@@ -1,0 +1,23 @@
+<deployment>
+    <hosts>
+        <host name="localhost"
+              dir="/home/javatar/IdeaProjects/PubSubBCM4Java"/>
+    </hosts>
+    <cyclicBarrier hostname="localhost" port="55253"/>
+    <globalRegistry hostname="localhost" port="55252"/>
+    <rmiRegistryPort no="55999"/>
+    <jvms2hostnames>
+        <jvm2hostname jvmuri="sorbonne"
+                      rmiRegistryCreator="true"
+                      hostname="localhost"
+                      mainclass="fr.sorbonne_u.pubsub.DistributedCVM"/>
+        <jvm2hostname jvmuri="STL"
+                      rmiRegistryCreator="false"
+                      hostname="localhost"
+                      mainclass="fr.sorbonne_u.pubsub.DistributedCVM"/>
+        <jvm2hostname jvmuri="SAR"
+                      rmiRegistryCreator="false"
+                      hostname="localhost"
+                      mainclass="fr.sorbonne_u.pubsub.DistributedCVM"/>
+    </jvms2hostnames>
+</deployment>

@@ -10,12 +10,12 @@ import fr.sorbonne_u.pubsub.interfaces.OfferableBrokerService;
 
 import java.util.function.Predicate;
 
-public class PubSubComponentInBoundPort extends AbstractInboundPort implements OfferableBrokerService {
-    public PubSubComponentInBoundPort(String inBoundPortUri, ComponentI owner) throws Exception {
+public class PubSubInBoundPort extends AbstractInboundPort implements OfferableBrokerService {
+    public PubSubInBoundPort(String inBoundPortUri, ComponentI owner) throws Exception {
         super(inBoundPortUri, OfferableBrokerService.class, owner);
     }
 
-    public PubSubComponentInBoundPort(ComponentI owner) throws Exception {
+    public PubSubInBoundPort(ComponentI owner) throws Exception {
         super(OfferableBrokerService.class, owner);
     }
 

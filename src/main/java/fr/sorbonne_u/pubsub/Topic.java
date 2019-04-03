@@ -4,14 +4,19 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Topic implements Serializable {
+    public static final Topic ROOT = Topic.of("ROOT");
     private final String name;
 
     private Topic(String name) {
         this.name = name;
     }
 
-    public static TopicBuilder newBuilder(String topic) {
-        return new TopicBuilder(topic);
+    public static Topic of(String name) {
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("Topic cannot be null or empty.");
+
+        return new Topic(name);
+
     }
 
     public String getName() {

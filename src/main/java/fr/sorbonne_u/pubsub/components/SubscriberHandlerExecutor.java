@@ -23,9 +23,13 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
     }
 
     public Collection<MessagePublisher> getSubscribers(Topic topic) {
+        if (subscribers.containsKey(Topic.ROOT)) {
+            return subscribers.get(Topic.ROOT).values();
+        }
         Map<String, MessagePublisher> subs = subscribers.get(topic);
         return subs == null ? null : subs.values();
     }
+
 
     public CompletableFuture<Void> subscribe(Topic topic, MessagePublisher obs) {
         return CompletableFuture.runAsync(() -> addObserver(topic, obs), super.executor);
@@ -102,5 +106,10 @@ public class SubscriberHandlerExecutor extends HandlerExecutor {
         subscribers.clear();
     }
 
-
+    @Override
+    public void shutdown() {
+        subscribers.values().forEach(subs -> subs.values().forEach(MessagePublisher::shutdown));
+        subscribers.clear();
+        super.shutdown();
+    }
 }

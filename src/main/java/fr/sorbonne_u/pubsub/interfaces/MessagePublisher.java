@@ -16,6 +16,10 @@ public interface MessagePublisher {
 
     }
 
+    default void shutdown() {
+
+    }
+
     default String getKey() {
         return "";
     }

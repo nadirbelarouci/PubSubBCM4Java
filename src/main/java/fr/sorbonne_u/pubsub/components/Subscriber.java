@@ -9,7 +9,6 @@ import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.ports.PortI;
 import fr.sorbonne_u.pubsub.Message;
 import fr.sorbonne_u.pubsub.Topic;
-import fr.sorbonne_u.pubsub.connectors.PublisherServiceConnector;
 import fr.sorbonne_u.pubsub.connectors.SubscriberServiceConnector;
 import fr.sorbonne_u.pubsub.interfaces.MessageReceiver;
 import fr.sorbonne_u.pubsub.interfaces.OfferableMessageReceiver;
@@ -18,7 +17,6 @@ import fr.sorbonne_u.pubsub.interfaces.SubscriberService;
 import fr.sorbonne_u.pubsub.port.SubscriberInBoundPort;
 import fr.sorbonne_u.pubsub.port.SubscriberOutBoundPort;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 
 @RequiredInterfaces(required = RequirableSubscriberService.class)
@@ -29,32 +27,8 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     private SubscriberInBoundPort subscriberInBoundPort;
 
 
-    public Subscriber(String uri, String subOutBoundPortUri, String subInBoundPortUri) throws Exception {
+    public Subscriber(String uri) throws Exception {
         super(uri, 1, 1);
-        Objects.requireNonNull(uri);
-        Objects.requireNonNull(subOutBoundPortUri);
-        Objects.requireNonNull(subInBoundPortUri);
-
-
-        subscriberInBoundPort = new SubscriberInBoundPort(subInBoundPortUri, this);
-        // add the port to the set of ports of the component
-        this.addPort(subscriberInBoundPort);
-        // publish the port
-        subscriberInBoundPort.publishPort();
-
-        this.subscriberOutBoundPort = new SubscriberOutBoundPort(subOutBoundPortUri, this, subInBoundPortUri);
-        this.addPort(subscriberOutBoundPort);
-        this.subscriberOutBoundPort.localPublishPort();
-
-
-        this.tracer.setTitle("Subscriber");
-        this.tracer.setRelativePosition(1, 1);
-
-    }
-
-    public Subscriber() throws Exception {
-        super(1, 1);
-
 
         subscriberInBoundPort = new SubscriberInBoundPort(this);
         // add the port to the set of ports of the component
@@ -72,6 +46,25 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
 
     }
 
+    public Subscriber() throws Exception {
+        super(1, 1);
+
+        subscriberInBoundPort = new SubscriberInBoundPort(this);
+        // add the port to the set of ports of the component
+        this.addPort(subscriberInBoundPort);
+        // publish the port
+        subscriberInBoundPort.publishPort();
+
+        this.subscriberOutBoundPort = new SubscriberOutBoundPort(this, subscriberInBoundPort.getPortURI());
+        this.addPort(subscriberOutBoundPort);
+        this.subscriberOutBoundPort.localPublishPort();
+
+
+        this.tracer.setTitle("Subscriber");
+        this.tracer.setRelativePosition(1, 1);
+
+
+    }
 
     @Override
     public void start() throws ComponentStartException {
@@ -153,7 +146,7 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     }
 
     @Override
-    public void receiveMessage(Message message) {
+    public void receiveMessage(Message message) throws Exception {
         this.logMessage("subscriber received a message: " + message.getContent());
     }
 
