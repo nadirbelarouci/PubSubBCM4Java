@@ -1,0 +1,5 @@
+fr.sorbonne_u.components.pubsub
+fr.sorbonne_u.components.pubsub.components
+fr.sorbonne_u.components.pubsub.connectors
+fr.sorbonne_u.components.pubsub.interfaces
+fr.sorbonne_u.components.pubsub.port

@@ -12,6 +12,7 @@ import fr.sorbonne_u.components.pubsub.Topic;
 import fr.sorbonne_u.components.pubsub.connectors.SubscriberServiceConnector;
 import fr.sorbonne_u.components.pubsub.interfaces.Observer;
 import fr.sorbonne_u.components.pubsub.interfaces.SubscriberService;
+import fr.sorbonne_u.components.pubsub.interfaces.SubscriberService.Required;
 import fr.sorbonne_u.components.pubsub.port.SubscriberInBoundPort;
 import fr.sorbonne_u.components.pubsub.port.SubscriberOutBoundPort;
 import fr.sorbonne_u.components.reflection.interfaces.ReflectionI;
@@ -27,8 +28,8 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * {@code SubscriberService}, {@code Observer} interfaces methods and delegates their implementations
  * to its {@code SubscriberOutBoundPort} and its {@code SubscriberInBoundPort}.
  * <p>
- * This component has a required interface {@link SubscriberService.Required},
- * and an offered interface {@link Observer.Offered} so that the component can receive messages.
+ * This component has a required interface {@link fr.sorbonne_u.components.pubsub.interfaces.SubscriberService.Required}
+ * and an offered interface {@link fr.sorbonne_u.components.pubsub.interfaces.Observer.Offered} so that the component can receive messages.
  * <p>
  * The connection between this component {@code SubscriberOutBoundPort} and the {@code PubSub}
  * component in-bound port is established by using the {@link SubscriberServiceConnector} class.
@@ -56,7 +57,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * @see SubscriberServiceConnector
  * @see fr.sorbonne_u.components.pubsub.connectors.ObserverConnector
  */
-@RequiredInterfaces(required = SubscriberService.Required.class)
+@RequiredInterfaces(required = Required.class)
 @OfferedInterfaces(offered = Observer.Offered.class)
 public class Subscriber extends AbstractComponent implements SubscriberService, Observer {
     /**

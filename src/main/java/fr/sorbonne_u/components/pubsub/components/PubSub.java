@@ -30,7 +30,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * <p>
  * The {@code PubSub}  implement all the methods of the {@code PubSubService} interface
  * and delegates their implementations to its {@code PubSubInBoundPort} since
- * the component offers {@link PubSubService.Offered} interface.
+ * the component offers {@link fr.sorbonne_u.components.pubsub.interfaces.PubSubService.Offered} interface.
  * <p>
  * The {@code PubSub}  is also responsible of creating {@code Subscribable} instances
  * for each subscription, each {@code Subscribable} instance will have a {@code PubSubOutBoundPort}
@@ -403,7 +403,6 @@ public class PubSub extends AbstractComponent implements PubSubService {
      * </p>
      *
      * @param topic A {@code Topic}
-     * @return A {@code CompletableFuture} for this async request
      */
     public void removeTopic(Topic topic) {
         broker.removeTopic(topic);

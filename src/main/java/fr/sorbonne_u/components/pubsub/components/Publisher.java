@@ -16,7 +16,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * A {@code Publisher} component handles publishing messages to the PubSub.
  * The {@code Publisher} implement all the methods of the {@code PublisherService} interface methods
  * and delegates their implementations to its {@code PublisherOutBoundPort}.
- * This component has only one required interface: {@link PublisherService.Required}
+ * This component has only one required interface: {@link fr.sorbonne_u.components.pubsub.interfaces.PublisherService.Required}
  * <p>
  * In a CVM, this component need to establish the connection between his out-bound port and a {@code PubSub} component,
  * however, in a Distributed CVM, this component need to establish the connection between his out-bound port
