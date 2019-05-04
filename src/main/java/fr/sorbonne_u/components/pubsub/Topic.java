@@ -20,7 +20,6 @@ import java.util.Objects;
  * @see fr.sorbonne_u.components.pubsub.interfaces.SubscriberService
  */
 public class Topic implements Serializable {
-
     /**
      * A final topic that hosts will subscribe to on a distributed environment.
      */
@@ -54,7 +53,7 @@ public class Topic implements Serializable {
     public static Topic of(String name) {
         if (name == null || name.isEmpty())
             throw new IllegalArgumentException("Topic cannot be null or empty.");
-        if (name.equals("ROOT"))
+        if (name.equals(ROOT.name))
             throw new IllegalArgumentException("Topic cannot be equal to ROOT. RESERVED");
 
         return new Topic(name);

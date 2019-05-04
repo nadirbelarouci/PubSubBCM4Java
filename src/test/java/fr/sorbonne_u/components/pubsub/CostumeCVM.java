@@ -49,19 +49,9 @@ public class CostumeCVM extends AbstractCVM {
         super();
     }
 
-    public static void main(String[] args) {
-        try {
-            // Create an instance of the defined component virtual machine.
-            CostumeCVM a = new CostumeCVM();
-            // Execute the application.
-            a.startStandardLifeCycle(100000L);
-            // Give some time to see the traces (convenience).
-            // Simplifies the termination (termination has yet to be treated
-            // properly in BCM).
-            System.exit(0);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws Exception {
+        CostumeCVM a = new CostumeCVM();
+        a.startStandardLifeCycle(100000L);
     }
 
     /**

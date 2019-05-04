@@ -35,8 +35,8 @@ package fr.sorbonne_u.components.pubsub;
 //knowledge of the CeCILL-C license and that you accept its terms.
 
 import fr.sorbonne_u.components.cvm.AbstractDistributedCVM;
-import fr.sorbonne_u.components.pubsub.components.PubSubNode;
 import fr.sorbonne_u.components.pubsub.components.PubSub;
+import fr.sorbonne_u.components.pubsub.components.PubSubNode;
 import fr.sorbonne_u.components.pubsub.components.Publisher;
 import fr.sorbonne_u.components.pubsub.components.Subscriber;
 
@@ -72,7 +72,9 @@ import java.util.List;
  */
 public class CostumeDistributedCVM
         extends AbstractDistributedCVM {
-
+    private static final String PUBSUB_INBOUND_PORT_URI = "SORBONNE";
+    private static final String STL = "STL";
+    private static final String SAR = "SAR";
 
     private Publisher STLProfessor;
     private Publisher SARProfessor;
@@ -85,14 +87,9 @@ public class CostumeDistributedCVM
         super(args, xLayout, yLayout);
     }
 
-    public static void main(String[] args) {
-        try {
-            CostumeDistributedCVM da = new CostumeDistributedCVM(args, 2, 5);
-            da.startStandardLifeCycle(100000);
-            System.exit(0);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws Exception {
+        CostumeDistributedCVM da = new CostumeDistributedCVM(args, 2, 5);
+        da.startStandardLifeCycle(100000);
     }
 
     /**
@@ -135,12 +132,12 @@ public class CostumeDistributedCVM
     @Override
     public void instantiateAndPublish() throws Exception {
 
-        if (thisJVMURI.equals("STL")) {
+        if (thisJVMURI.equals(STL)) {
             PubSub pubSub = PubSub.newBuilder(this)
-                    .setPubSubInBoundPortURI("SORBONNE")
+                    .setPubSubInBoundPortURI(PUBSUB_INBOUND_PORT_URI)
                     .build();
 
-            PubSubNode pubSubNode = PubSubNode.newBuilder(this, "SORBONNE").build();
+            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI).build();
 
             STLProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
 
@@ -154,7 +151,7 @@ public class CostumeDistributedCVM
 
         } else if (thisJVMURI.equals("SAR")) {
 
-            PubSubNode pubSubNode = PubSubNode.newBuilder(this, "SORBONNE").build();
+            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI).build();
             SARProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
 
             SARStudents = new ArrayList<>();
@@ -168,7 +165,7 @@ public class CostumeDistributedCVM
 
     @Override
     public void start() throws Exception {
-        if (thisJVMURI.equals("STL")) {
+        if (thisJVMURI.equals(STL)) {
 
 
             Message algav = Message.newBuilder("ALGAV").setContent("NO ALGAV CLASS").build();
@@ -178,7 +175,7 @@ public class CostumeDistributedCVM
 
             Thread.sleep(1000);
             STLProfessor.publish(algav);
-        } else if (thisJVMURI.equals("SAR")) {
+        } else if (thisJVMURI.equals(SAR)) {
 
 
             Message noyau = Message.newBuilder("NOYAU").setContent("NOYAU CLASS TODAY").build();

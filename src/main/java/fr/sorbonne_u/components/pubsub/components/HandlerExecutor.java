@@ -44,7 +44,7 @@ public abstract class HandlerExecutor {
             executor.shutdown();
             executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            executor.shutdownNow();
         } finally {
             executor.shutdownNow();
         }

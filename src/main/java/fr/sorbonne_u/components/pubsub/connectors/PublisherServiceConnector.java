@@ -2,6 +2,7 @@ package fr.sorbonne_u.components.pubsub.connectors;
 
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import fr.sorbonne_u.components.pubsub.Message;
+import fr.sorbonne_u.components.pubsub.exceptions.CallOfferedMethodException;
 import fr.sorbonne_u.components.pubsub.interfaces.PubSubService;
 import fr.sorbonne_u.components.pubsub.interfaces.PublisherService;
 
@@ -23,7 +24,7 @@ public class PublisherServiceConnector extends AbstractConnector implements Publ
         try {
             ((PubSubService.Offered) this.offering).publish(message);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
         }
     }
 }

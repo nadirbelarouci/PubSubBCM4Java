@@ -52,8 +52,6 @@ public interface Subscribable {
     /**
      * Clean and shut any used resources such as ports or threads.
      */
-    default void shutdown() {
-
-    }
+    void shutdown();
 
 }

@@ -29,7 +29,7 @@ public class SubscribableMock implements Subscribable {
 
     @Override
     public void filter(Topic topic, Predicate<Message> filter) {
-
+        // TODO add filter
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SubscribableMock implements Subscribable {
 
     @Override
     public void shutdown() {
-
+        // TODO add shutdown
     }
 
     @Override

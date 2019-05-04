@@ -44,7 +44,12 @@ public class PubSubNode extends PubSub {
         super(builder);
         subscriber = builder.subscriber;
         publisher = builder.publisher;
-        subscriber.setMessageConsumer(this::tryPublish);
+
+        /*
+         * When a message is received from the unique {@code PubSub} component,
+         * the message will be published to the actual subscribers of this {@code PubSubNode} component.
+         */
+        subscriber.setMessageConsumer(super::publish);
     }
 
     /**
@@ -105,20 +110,6 @@ public class PubSubNode extends PubSub {
     @Override
     public void publish(Message message) {
         this.publisher.publish(message);
-    }
-
-    /**
-     * When a message is received from the unique {@code PubSub} component,
-     * the message will be published to the actual subscribers of this {@code PubSubNode} component.
-     *
-     * @param message A {@code Message}
-     */
-    private void tryPublish(Message message) {
-        try {
-            super.publish(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
 

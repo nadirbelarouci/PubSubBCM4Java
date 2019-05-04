@@ -10,6 +10,7 @@ import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
 import fr.sorbonne_u.components.pubsub.connectors.ObserverConnector;
+import fr.sorbonne_u.components.pubsub.exceptions.UnPublishPortException;
 import fr.sorbonne_u.components.pubsub.interfaces.Observer;
 import fr.sorbonne_u.components.pubsub.interfaces.PubSubService;
 import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
@@ -560,7 +561,7 @@ public class PubSub extends AbstractComponent implements PubSubService {
                     if (accept(message))
                         this.pubSubOutBoundPort.notify(message);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    shutdown();
                 }
             }
 
@@ -577,7 +578,7 @@ public class PubSub extends AbstractComponent implements PubSubService {
                     this.pubSubOutBoundPort.doDisconnection();
                     this.pubSubOutBoundPort.unpublishPort();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new UnPublishPortException(e);
                 }
             }
 

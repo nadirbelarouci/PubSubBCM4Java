@@ -306,7 +306,7 @@ public class Message implements Serializable {
             try {
                 owner = InetAddress.getLocalHost().toString();
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new No(e);
             }
         }
 

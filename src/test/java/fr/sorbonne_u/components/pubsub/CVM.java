@@ -49,19 +49,9 @@ public class CVM extends AbstractCVM {
         super();
     }
 
-    public static void main(String[] args) {
-        try {
-            // Create an instance of the defined component virtual machine.
-            CVM a = new CVM();
-            // Execute the application.
-            a.startStandardLifeCycle(100000L);
-            // Give some time to see the traces (convenience).
-            // Simplifies the termination (termination has yet to be treated
-            // properly in BCM).
-            System.exit(0);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws Exception {
+        CVM a = new CVM();
+        a.startStandardLifeCycle(100000L);
     }
 
     /**

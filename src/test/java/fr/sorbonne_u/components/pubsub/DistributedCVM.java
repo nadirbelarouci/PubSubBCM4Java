@@ -72,6 +72,8 @@ import java.util.List;
 public class DistributedCVM
         extends AbstractDistributedCVM {
 
+    private static final String STL = "STL";
+    private static final String SAR = "SAR";
 
     private Publisher STLProfessor;
     private Publisher SARProfessor;
@@ -84,14 +86,9 @@ public class DistributedCVM
         super(args, xLayout, yLayout);
     }
 
-    public static void main(String[] args) {
-        try {
-            DistributedCVM da = new DistributedCVM(args, 2, 5);
-            da.startStandardLifeCycle(10000);
-            System.exit(0);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static void main(String[] args) throws Exception {
+        DistributedCVM da = new DistributedCVM(args, 2, 5);
+        da.startStandardLifeCycle(10000);
     }
 
     /**
@@ -133,8 +130,8 @@ public class DistributedCVM
      */
     @Override
     public void instantiateAndPublish() throws Exception {
-        PubSub.newCommonPubSub(this, thisJVMURI.equals("STL"));
-        if (thisJVMURI.equals("STL")) {
+        PubSub.newCommonPubSub(this, thisJVMURI.equals(STL));
+        if (thisJVMURI.equals(STL)) {
 
             STLProfessor = Publisher.newBuilder(this).build();
 
@@ -146,7 +143,7 @@ public class DistributedCVM
             }
 
 
-        } else if (thisJVMURI.equals("SAR")) {
+        } else if (thisJVMURI.equals(SAR)) {
 
             SARProfessor = Publisher.newBuilder(this).build();
 
@@ -161,7 +158,7 @@ public class DistributedCVM
 
     @Override
     public void start() throws Exception {
-        if (thisJVMURI.equals("STL")) {
+        if (thisJVMURI.equals(STL)) {
 
 
             Message algav = Message.newBuilder("ALGAV").setContent("NO ALGAV CLASS").build();
@@ -171,7 +168,7 @@ public class DistributedCVM
 
             Thread.sleep(1000);
             STLProfessor.publish(algav);
-        } else if (thisJVMURI.equals("SAR")) {
+        } else if (thisJVMURI.equals(SAR)) {
 
 
             Message noyau = Message.newBuilder("NOYAU").setContent("NOYAU CLASS TODAY").build();

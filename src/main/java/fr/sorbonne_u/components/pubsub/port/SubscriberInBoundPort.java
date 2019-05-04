@@ -37,6 +37,11 @@ public class SubscriberInBoundPort extends AbstractInboundPort implements Observ
     }
 
     @Override
+    public String getPortURI() {
+        return uri;
+    }
+
+    @Override
     public void notify(Message message) throws Exception {
         this.getOwner().handleRequestSync(
                 new AbstractComponent.AbstractService<Void>() {

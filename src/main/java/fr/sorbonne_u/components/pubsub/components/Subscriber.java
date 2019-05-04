@@ -231,11 +231,8 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
     @Override
     public String getSubId() {
 
-        try {
-            return subscriberInBoundPort.getPortURI();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return subscriberInBoundPort.getPortURI();
+
     }
 
     /**

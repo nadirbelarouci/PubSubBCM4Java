@@ -3,6 +3,7 @@ package fr.sorbonne_u.components.pubsub.connectors;
 import fr.sorbonne_u.components.connectors.AbstractConnector;
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
+import fr.sorbonne_u.components.pubsub.exceptions.CallOfferedMethodException;
 import fr.sorbonne_u.components.pubsub.interfaces.PubSubService;
 import fr.sorbonne_u.components.pubsub.interfaces.SubscriberService;
 import fr.sorbonne_u.components.pubsub.port.SubscriberOutBoundPort;
@@ -26,7 +27,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
     public String getSubId() {
 
         if (!(this.requiring instanceof SubscriberOutBoundPort))
-            throw new IllegalStateException();
+            throw new ClassCastException();
 
         return ((SubscriberService.Required) this.requiring).getSubId();
     }
@@ -37,7 +38,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
         try {
             ((PubSubService.Offered) this.offering).subscribe(getSubId(), topic);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
         }
 
     }
@@ -47,7 +48,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
         try {
             ((PubSubService.Offered) this.offering).subscribe(getSubId(), topic, filter);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
 
         }
     }
@@ -57,7 +58,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
         try {
             ((PubSubService.Offered) this.offering).filter(getSubId(), topic, filter);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
 
         }
     }
@@ -67,7 +68,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
         try {
             ((PubSubService.Offered) this.offering).unsubscribe(getSubId(), topic);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
 
         }
 
@@ -79,7 +80,7 @@ public class SubscriberServiceConnector extends AbstractConnector implements Sub
             ((PubSubService.Offered) this.offering).unsubscribe(this.requiringPortURI);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CallOfferedMethodException(e);
 
         }
 

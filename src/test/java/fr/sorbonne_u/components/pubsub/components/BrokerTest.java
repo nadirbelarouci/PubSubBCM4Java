@@ -24,7 +24,7 @@ public class BrokerTest {
     private Broker broker = new Broker(5, 5);
 
     @Before
-    public void setup() {
+    public void setUp() {
         broker = new Broker();
         observers.add(new SubscribableMock("1"));
         observers.add(new SubscribableMock("2"));
