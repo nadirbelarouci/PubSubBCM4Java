@@ -133,7 +133,7 @@ public class CostumeDistributedCVM
     public void instantiateAndPublish() throws Exception {
 
         if (thisJVMURI.equals(STL)) {
-            PubSub pubSub = PubSub.newBuilder(this)
+            PubSub.newBuilder(this)
                     .setPubSubInBoundPortURI(PUBSUB_INBOUND_PORT_URI)
                     .build();
 
@@ -149,7 +149,7 @@ public class CostumeDistributedCVM
             }
 
 
-        } else if (thisJVMURI.equals("SAR")) {
+        } else if (thisJVMURI.equals(SAR)) {
 
             PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI).build();
             SARProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
