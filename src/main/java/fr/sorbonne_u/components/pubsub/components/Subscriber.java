@@ -87,7 +87,7 @@ public class Subscriber extends AbstractComponent implements SubscriberService, 
 
         this.block = builder.block;
 
-        // initialize the subscriberInBoundPor
+        // initialize the subscriberInBoundPort
         this.subscriberInBoundPort = builder.subscriberInBoundPortURI == null ?
                 new SubscriberInBoundPort(this) :
                 new SubscriberInBoundPort(builder.subscriberInBoundPortURI, this);

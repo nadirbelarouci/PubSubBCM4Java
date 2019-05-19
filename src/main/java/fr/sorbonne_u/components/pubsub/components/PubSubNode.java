@@ -135,6 +135,55 @@ public class PubSubNode extends PubSub {
             this.publisher = publisher;
         }
 
+
+        @Override
+        public Builder setSubscribingParallelism(int subscribingParallelism) {
+            super.setSubscribingParallelism(subscribingParallelism);
+            return this;
+        }
+
+        @Override
+        public Builder setPublishingParallelism(int publishingParallelism) {
+            super.setPublishingParallelism(publishingParallelism);
+            return this;
+        }
+
+        @Override
+        public Builder setPubSubInBoundPortURI(String pubSubInBoundPortURI) {
+            super.setPubSubInBoundPortURI(pubSubInBoundPortURI);
+            return this;
+        }
+
+        @Override
+        public Builder setReflectionInboundPortURI(String reflectionInboundPortURI) {
+            super.setReflectionInboundPortURI(reflectionInboundPortURI);
+            return this;
+        }
+
+        @Override
+        public Builder setLogging(boolean logging) {
+            super.setLogging(logging);
+            return this;
+        }
+
+        @Override
+        public Builder setTracing(boolean tracing) {
+            super.setTracing(tracing);
+            return this;
+        }
+
+        @Override
+        public Builder setNbThreads(int nbThreads) {
+            super.setNbThreads(nbThreads);
+            return this;
+        }
+
+        @Override
+        public Builder setNbSchedulableThreads(int nbSchedulableThreads) {
+            super.setNbSchedulableThreads(nbSchedulableThreads);
+            return this;
+        }
+
         @Override
         protected Builder self() {
             return this;

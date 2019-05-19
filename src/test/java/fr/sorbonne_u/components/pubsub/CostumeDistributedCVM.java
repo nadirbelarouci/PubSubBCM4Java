@@ -89,7 +89,7 @@ public class CostumeDistributedCVM
 
     public static void main(String[] args) throws Exception {
         CostumeDistributedCVM da = new CostumeDistributedCVM(args, 2, 5);
-        da.startStandardLifeCycle(100000);
+        da.startStandardLifeCycle(30000);
     }
 
     /**
@@ -135,34 +135,51 @@ public class CostumeDistributedCVM
         if (thisJVMURI.equals(STL)) {
 
             PubSub.newBuilder(this)
+                    .setReflectionInboundPortURI("CSORBONNE")
                     .setPubSubInBoundPortURI(PUBSUB_INBOUND_PORT_URI)
                     .build();
 
-            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI).build();
+            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI)
+                    .setReflectionInboundPortURI("CSTL")
+                    .build();
 
-            STLProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
+            STLProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI())
+                    .setReflectionInboundPortURI("STLProf")
+                    .build();
 
 
             STLStudents = new ArrayList<>();
             for (int i = 0; i < 2; i++) {
-                Subscriber student = Subscriber.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
+                Subscriber student = Subscriber.newBuilder(this, pubSubNode.getInBoundPortURI())
+                        .setReflectionInboundPortURI("STLStd" + i)
+                        .setSubscriberInBoundPortURI("STL" + i)
+                        .build();
                 STLStudents.add(student);
             }
 
 
         } else if (thisJVMURI.equals(SAR)) {
 
-            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI).build();
-            SARProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
+            PubSubNode pubSubNode = PubSubNode.newBuilder(this, PUBSUB_INBOUND_PORT_URI)
+                    .setReflectionInboundPortURI("CSAR")
+                    .build();
+            SARProfessor = Publisher.newBuilder(this, pubSubNode.getInBoundPortURI())
+                    .setReflectionInboundPortURI("SARProf")
+                    .build();
 
             SARStudents = new ArrayList<>();
             for (int i = 0; i < 2; i++) {
-                Subscriber student = Subscriber.newBuilder(this, pubSubNode.getInBoundPortURI()).build();
+                Subscriber student = Subscriber.newBuilder(this, pubSubNode.getInBoundPortURI())
+                        .setReflectionInboundPortURI("SARStd" + i)
+                        .setSubscriberInBoundPortURI("SAR" + i)
+                        .build();
                 SARStudents.add(student);
             }
         }
         super.instantiateAndPublish();
     }
+
+
 
     @Override
     public void start() throws Exception {
@@ -174,7 +191,7 @@ public class CostumeDistributedCVM
             STLStudents.forEach(student -> student.subscribe(Topic.of("ALGAV")));
             STLStudents.get(1).subscribe(Topic.of("NOYAU"));
 
-            Thread.sleep(1000);
+            Thread.sleep(3000);
             STLProfessor.publish(algav);
         } else if (thisJVMURI.equals(SAR)) {
 
@@ -184,7 +201,7 @@ public class CostumeDistributedCVM
             SARStudents.forEach(student -> student.subscribe(Topic.of("NOYAU")));
             SARStudents.get(0).subscribe(Topic.of("ALGAV"));
 
-            Thread.sleep(1000);
+            Thread.sleep(4000);
             SARProfessor.publish(noyau);
         }
 

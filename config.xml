@@ -10,10 +10,10 @@
         <jvm2hostname jvmuri="STL"
                       rmiRegistryCreator="true"
                       hostname="localhost"
-                      mainclass="fr.sorbonne_u.components.pubsub.DistributedCVM"/>
+                      mainclass="fr.sorbonne_u.components.pubsub.CostumeDistributedCVM"/>
         <jvm2hostname jvmuri="SAR"
                       rmiRegistryCreator="false"
                       hostname="localhost"
-                      mainclass="fr.sorbonne_u.components.pubsub.DistributedCVM"/>
+                      mainclass="fr.sorbonne_u.components.pubsub.CostumeDistributedCVM"/>
     </jvms2hostnames>
 </deployment>

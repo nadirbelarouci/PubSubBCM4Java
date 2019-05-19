@@ -556,9 +556,10 @@ public class PubSub extends AbstractComponent implements PubSubService {
         public void notify(Message message) {
             synchronized (pubSubOutBoundPort) {
                 try {
-                    if (accept(message))
+                    if (accept(message) && pubSubOutBoundPort.isPublished())
                         this.pubSubOutBoundPort.notify(message);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     end();
                 }
             }
@@ -574,6 +575,8 @@ public class PubSub extends AbstractComponent implements PubSubService {
         public void end() {
             synchronized (pubSubOutBoundPort) {
                 try {
+                    if(!pubSubOutBoundPort.isPublished())
+                        return;
                     this.pubSubOutBoundPort.doDisconnection();
                     this.pubSubOutBoundPort.unpublishPort();
                 } catch (Exception e) {

@@ -51,7 +51,8 @@ public class CVM extends AbstractCVM {
 
     public static void main(String[] args) throws Exception {
         CVM a = new CVM();
-        a.startStandardLifeCycle(100000L);
+        a.startStandardLifeCycle(10000);
+        System.exit(0);
     }
 
     /**
