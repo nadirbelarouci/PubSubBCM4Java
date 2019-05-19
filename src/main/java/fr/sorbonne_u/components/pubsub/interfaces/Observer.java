@@ -26,7 +26,7 @@ import fr.sorbonne_u.components.pubsub.Message;
  * @author Katia Amichi
  * @see fr.sorbonne_u.components.pubsub.port.SubscriberInBoundPort
  * @see fr.sorbonne_u.components.pubsub.port.PubSubOutBoundPort
- * @see Subscribable
+ * @see Subscription
  */
 public interface Observer {
     /**

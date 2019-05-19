@@ -69,7 +69,8 @@ public class CostumeCVM extends AbstractCVM {
     @Override
     public void deploy() throws Exception {
         assert !this.deploymentDone();
-        PubSub pubSub = PubSub.newBuilder(this).build();
+        PubSub pubSub = PubSub.newBuilder(this)
+                .build();
 
         this.publisher1 = Publisher.newBuilder(this, pubSub.getInBoundPortURI()).build();
         this.publisher2 = Publisher.newBuilder(this, pubSub.getInBoundPortURI()).build();

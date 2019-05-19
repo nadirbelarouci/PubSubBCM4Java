@@ -2,7 +2,7 @@ package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
-import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.Objects;
 import java.util.Set;
@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  * </p>
  *
  * <p>
- * Note that the class is not responsible for creating {@code Subscribable} instances,
+ * Note that the class is not responsible for creating {@code Subscription} instances,
  * it is up to the user of this class to create them, i.e a {@code PubSub} class, or a test class
  * </p>
  *
@@ -90,11 +90,11 @@ public class Broker {
     /**
      * Subscribe to a topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> subscribe(Subscribable sub, Topic topic) {
+    protected CompletableFuture<Void> subscribe(Subscription sub, Topic topic) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         Objects.requireNonNull(topic, "Topic cannot be null.");
 
@@ -105,27 +105,27 @@ public class Broker {
     /**
      * Subscribe to a topic using a filter
      *
-     * @param sub    A {@code Subscribable}
+     * @param sub    A {@code Subscription}
      * @param topic  A {@code Topic}
      * @param filter A predicate of a message
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> subscribe(Subscribable sub, Topic topic, Predicate<Message> filter) {
+    protected CompletableFuture<Void> subscribe(Subscription sub, Topic topic, Predicate<Message> filter) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         Objects.requireNonNull(topic, "Topic cannot be null.");
         Objects.requireNonNull(filter, "Filter cannot be null.");
-        sub.filter(topic, filter);
+        sub.filter( filter);
         return subscriberExecutor.subscribe(sub, topic);
     }
 
     /**
      * Unsubscribe from a topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> unsubscribe(Subscribable sub, Topic topic) {
+    protected CompletableFuture<Void> unsubscribe(Subscription sub, Topic topic) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         Objects.requireNonNull(topic, "Topic cannot be null.");
         return subscriberExecutor.unsubscribe(sub, topic);
@@ -149,7 +149,7 @@ public class Broker {
      *
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> unsubscribe(Subscribable sub) {
+    protected CompletableFuture<Void> unsubscribe(Subscription sub) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         return subscriberExecutor.unsubscribe(sub);
     }
@@ -222,10 +222,10 @@ public class Broker {
     /**
      * Check if a subscriber is subscribed any topic.
      *
-     * @param sub A {@code Subscribable}
+     * @param sub A {@code Subscription}
      * @return true if there is a topic on which {@code sub} is subscribed to
      */
-    protected boolean isSubscribed(Subscribable sub) {
+    protected boolean isSubscribed(Subscription sub) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         return subscriberExecutor.isSubscribed(sub);
     }
@@ -233,11 +233,11 @@ public class Broker {
     /**
      * Check if a subscriber is subscribed to a specific topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return true if {@code sub} is subscribed to {@code topic}
      */
-    protected boolean isSubscribed(Subscribable sub, Topic topic) {
+    protected boolean isSubscribed(Subscription sub, Topic topic) {
         Objects.requireNonNull(sub, "Subscriber cannot be null.");
         Objects.requireNonNull(topic, "Topic cannot be null.");
         return subscriberExecutor.isSubscribed(sub, topic);

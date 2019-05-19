@@ -38,7 +38,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * component out-bound port is established by using the
  * {@link fr.sorbonne_u.components.pubsub.connectors.ObserverConnector} class.
  * <p>
- * When A subscriber receive a message, it will execute a {@code Consumer} of a {@code Message},
+ * When a subscriber receive a message, it will execute a {@code Message} {@code Consumer},
  * note that the order of messages that this component will receive is not specified.
  * <p>
  * A {@code Subscriber} ID is his in-bound port URI.

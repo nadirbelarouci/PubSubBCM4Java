@@ -1,7 +1,7 @@
 package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
-import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +37,7 @@ public class PublisherExecutor extends HandlerExecutor {
      * @param subscribers A collection of subscribers
      * @return a {@code CompletableFuture}
      */
-    protected CompletableFuture<Void> publish(Message message, Collection<Subscribable> subscribers) {
+    protected CompletableFuture<Void> publish(Message message, Collection<Subscription> subscribers) {
         return runAsync(() -> sendMessage(message, subscribers));
     }
 
@@ -47,7 +47,7 @@ public class PublisherExecutor extends HandlerExecutor {
      * @param message     A {@code Message}
      * @param subscribers A collection of subscribers
      */
-    private void sendMessage(Message message, Collection<Subscribable> subscribers) {
+    private void sendMessage(Message message, Collection<Subscription> subscribers) {
         if (subscribers != null) {
             subscribers.parallelStream()
                     .forEach(sub -> sub.notify(message));

@@ -6,6 +6,7 @@ import fr.sorbonne_u.components.ports.AbstractInboundPort;
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
 import fr.sorbonne_u.components.pubsub.interfaces.PubSubService;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.function.Predicate;
 
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
  * @see fr.sorbonne_u.components.pubsub.components.PubSub
  * @see fr.sorbonne_u.components.pubsub.components.Subscriber
  * @see fr.sorbonne_u.components.pubsub.components.Publisher
- * @see fr.sorbonne_u.components.pubsub.interfaces.Subscribable
+ * @see Subscription
  */
 public class PubSubInBoundPort extends AbstractInboundPort implements PubSubService.Offered {
     /**

@@ -27,7 +27,7 @@ public interface PubSubService {
     void publish(Message message) throws Exception;
 
     /**
-     * Subscribe to topic by creating a {@link Subscribable} instance from the Subscriber ID.
+     * Subscribe to topic by creating a {@link Subscription} instance from the Subscriber ID.
      *
      * @param subId The subscriber ID
      * @param topic A {@code Topic}
@@ -36,7 +36,7 @@ public interface PubSubService {
     void subscribe(String subId, Topic topic) throws Exception;
 
     /**
-     * Subscribe to topic with a filter by creating a {@link Subscribable} instance from the Subscriber ID.
+     * Subscribe to topic with a filter by creating a {@link Subscription} instance from the Subscriber ID.
      *
      * @param subId  The subscriber ID
      * @param topic  A {@code Topic}

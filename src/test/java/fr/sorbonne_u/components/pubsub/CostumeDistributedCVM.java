@@ -133,6 +133,7 @@ public class CostumeDistributedCVM
     public void instantiateAndPublish() throws Exception {
 
         if (thisJVMURI.equals(STL)) {
+
             PubSub.newBuilder(this)
                     .setPubSubInBoundPortURI(PUBSUB_INBOUND_PORT_URI)
                     .build();

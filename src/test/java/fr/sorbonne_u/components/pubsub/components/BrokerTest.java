@@ -2,6 +2,7 @@ package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,15 +21,15 @@ public class BrokerTest {
     private final static Topic TOPIC3 = Topic.of("TOPIC3");
 
 
-    private List<SubscribableMock> observers = new ArrayList<>();
+    private List<SubscriptionMock> observers = new ArrayList<>();
     private Broker broker = new Broker(5, 5);
 
     @Before
     public void setUp() {
         broker = new Broker();
-        observers.add(new SubscribableMock("1"));
-        observers.add(new SubscribableMock("2"));
-        observers.add(new SubscribableMock("3"));
+        observers.add(new SubscriptionMock("1"));
+        observers.add(new SubscriptionMock("2"));
+        observers.add(new SubscriptionMock("3"));
     }
 
     @After
@@ -90,23 +91,18 @@ public class BrokerTest {
 
     @Test
     public void publishShouldNotifyTheSubscribers() throws Exception {
-        observers.forEach(sub -> {
-            try {
-                broker.subscribe(sub, TOPIC1).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        });
+
+        for (Subscription sub : observers) {
+            broker.subscribe(sub, TOPIC1).get();
+        }
         broker.subscribe(observers.get(1), TOPIC2).get();
         broker.subscribe(observers.get(2), TOPIC2).get();
         broker.subscribe(observers.get(0), TOPIC3).get();
 
-//        observers.forEach(sub -> assumeTrue(broker.isSubscribed(TOPIC1, sub)));
-//        assumeTrue(broker.hasTopic(TOPIC1));
 
         broker.publish(Message.newBuilder(TOPIC1).setContent("Hello World Topic1").build())
                 .get();
-        for (SubscribableMock sub : observers) {
+        for (SubscriptionMock sub : observers) {
 
 
             Message message = sub.getMessage();
@@ -149,6 +145,15 @@ public class BrokerTest {
         assertTrue(broker.isSubscribed(observers.get(0)));
         broker.unsubscribe(observers.get(0)).get();
         assertFalse(broker.isSubscribed(observers.get(0), TOPIC1));
+    }
+
+    public abstract class Yossarian {
+        public final boolean isCrazy() {
+            return false;
+        }
+    }
+    public class Sub extends Yossarian{
+
     }
 
 

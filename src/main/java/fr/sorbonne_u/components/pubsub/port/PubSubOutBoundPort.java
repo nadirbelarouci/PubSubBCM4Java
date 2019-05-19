@@ -4,20 +4,21 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.interfaces.Observer;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 /**
  * The {@code PubSubOutBoundPort} is an implementation of the PubSub out-bound port.
  *
  * <p>
  * Unlike the in-bound port, this PubSub has as many out-bound ports as subscribers.
- * Since the {@code Subscribable} interface is the responsible of holding subscribers in the PubSub,
- * each {@code Subscribable} instance must hold a reference to an out-bound port so it can notify a subscriber.
+ * Since the {@code Subscription} interface is the responsible of holding subscribers in the PubSub,
+ * each {@code Subscription} instance must hold a reference to an out-bound port so it can notify a subscriber.
  * </p>
  *
  * @author Nadir Belarouci
  * @author Katia Amichi
  * @see fr.sorbonne_u.components.pubsub.components.PubSub
- * @see fr.sorbonne_u.components.pubsub.interfaces.Subscribable
+ * @see Subscription
  */
 public class PubSubOutBoundPort extends AbstractOutboundPort implements Observer.Required {
     /**

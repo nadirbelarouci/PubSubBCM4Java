@@ -2,7 +2,7 @@ package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
-import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,19 +16,19 @@ import java.util.function.Predicate;
  * Subscribers are organized in a {@code Map} which has topics as keys and
  * a collection of subscribers to that topic as a value.
  * <p>
- * Since the class manipulates {@code Subscribable} instances,
- * and since each {@code Subscribable} instance has a unique ID,
+ * Since the class manipulates {@code Subscription} instances,
+ * and since each {@code Subscription} instance has a unique ID,
  * the collection of subscribers that are subscribed to a topic is also
  * a {@code Map} which has {@code SubId} as a key and the
- * {@code Subscribable} instance itself as a value.
+ * {@code Subscription} instance itself as a value.
  * <p>
- * In other words, to access a {@code Subscribable} instance we need either:
+ * In other words, to access a {@code Subscription} instance we need either:
  * <ul>
  * <li>
- * A topic and a {@code Subscribable} instance.
+ * A topic and a {@code Subscription} instance.
  * </li>
  * <li>
- * A topic and a {@code Subscribable} ID.
+ * A topic and a {@code Subscription} ID.
  * </li>
  * </ul>
  * <p>
@@ -37,11 +37,11 @@ import java.util.function.Predicate;
  *
  * @author Nadir Belarocui
  * @author Katia Amichi
- * @see SubscriberExecutor
+ * @see PublisherExecutor
  * @see ConcurrentHashMap
  */
 public class SubscriberExecutor extends HandlerExecutor {
-    private final ConcurrentHashMap<Topic, ConcurrentHashMap<String, Subscribable>> subscribers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Topic, ConcurrentHashMap<String, Subscription>> subscribers = new ConcurrentHashMap<>();
 
     /**
      * Create a defalut executor with parallelism equals to 10.
@@ -67,55 +67,57 @@ public class SubscriberExecutor extends HandlerExecutor {
      * {@code ROOT} is the only topic.
      * </li>
      * <li>
-     * {@code Subscribable} instances that are subscribed to ROOT are {@code PubSubNode} subscribers.
+     * {@code Subscription} instances that are subscribed to ROOT are {@code PubSubNode} subscribers.
      * </li>
      * </ul>
      *
      * @param topic A {@code Topic}
-     * @return A collection of {@code Subscribable} instances.
+     * @return A collection of {@code Subscription} instances.
      */
-    protected Collection<Subscribable> getSubscribers(Topic topic) {
+    protected Collection<Subscription> getSubscribers(Topic topic) {
         if (subscribers.containsKey(Topic.ROOT)) {
             return subscribers.get(Topic.ROOT).values();
         }
-        Map<String, Subscribable> subs = subscribers.get(topic);
+        Map<String, Subscription> subs = subscribers.get(topic);
         return subs == null ? null : subs.values();
     }
 
     /**
      * Subscribe to a topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> subscribe(Subscribable sub, Topic topic) {
+    protected CompletableFuture<Void> subscribe(Subscription sub, Topic topic) {
         return runAsync(() -> addSubscriber(sub, topic));
     }
 
 
-    private void addSubscriber(Subscribable sub, Topic topic) {
+    private void addSubscriber(Subscription sub, Topic topic) {
         // if topic is absent, then initialize a new ConcurrentHashMap for that topic
         // and put the subscriber in it
         subscribers.computeIfAbsent(topic, t -> new ConcurrentHashMap<>())
                 .put(sub.getSubId(), sub);
+        Predicate<Message> filter = message -> message.getString("world").equals("programmers")
+                && message.getFloat("salary") > 3000;
     }
 
     /**
      * Unsubscribe from a topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> unsubscribe(Subscribable sub, Topic topic) {
+    protected CompletableFuture<Void> unsubscribe(Subscription sub, Topic topic) {
         return unsubscribe(sub.getSubId(), topic);
     }
 
     /**
      * Unsubscribe from a topic.
      *
-     * @param subId A {@code Subscribable} ID
+     * @param subId A {@code Subscription} ID
      * @param topic A {@code Topic}
      * @return A {@code CompletableFuture} for this async request
      */
@@ -126,17 +128,17 @@ public class SubscriberExecutor extends HandlerExecutor {
     /**
      * Unsubscribe from all topics.
      *
-     * @param sub A {@code Subscribable}
+     * @param sub A {@code Subscription}
      * @return A {@code CompletableFuture} for this async request
      */
-    protected CompletableFuture<Void> unsubscribe(Subscribable sub) {
+    protected CompletableFuture<Void> unsubscribe(Subscription sub) {
         return unsubscribe(sub.getSubId());
     }
 
     /**
      * Unsubscribe from all topics.
      *
-     * @param subId A {@code Subscribable} ID
+     * @param subId A {@code Subscription} ID
      * @return A {@code CompletableFuture} for this async request
      */
     protected CompletableFuture<Void> unsubscribe(String subId) {
@@ -146,9 +148,9 @@ public class SubscriberExecutor extends HandlerExecutor {
     private void deleteSubscriber(String subId, Topic topic) {
         // delete subscriber with one atomic block
         subscribers.computeIfPresent(topic, (t, subs) -> {
-            Subscribable sub = subs.remove(subId);
+            Subscription sub = subs.remove(subId);
             if (sub != null)
-                sub.shutdown();
+                sub.end();
             return subs;
         });
     }
@@ -177,7 +179,7 @@ public class SubscriberExecutor extends HandlerExecutor {
         // add the filter or update it
         subscribers.computeIfPresent(topic, (t, subs) -> {
             subs.computeIfPresent(subId, (id, sub) -> {
-                sub.filter(topic, filter);
+                sub.filter(filter);
                 return sub;
             });
             return subs;
@@ -188,11 +190,11 @@ public class SubscriberExecutor extends HandlerExecutor {
     /**
      * Check if a subscriber is subscribed any topic.
      *
-     * @param sub A {@code Subscribable}
+     * @param sub A {@code Subscription}
      * @return true if there is a topic on which {@code sub} is subscribed to
      */
 
-    protected boolean isSubscribed(Subscribable sub) {
+    protected boolean isSubscribed(Subscription sub) {
         return subscribers.entrySet()
                 .parallelStream()
                 .map(Map.Entry::getValue)
@@ -203,13 +205,13 @@ public class SubscriberExecutor extends HandlerExecutor {
     /**
      * Check if a subscriber is subscribed to a specific topic.
      *
-     * @param sub   A {@code Subscribable}
+     * @param sub   A {@code Subscription}
      * @param topic A {@code Topic}
      * @return true if {@code sub} is subscribed to {@code topic}
      */
 
-    protected boolean isSubscribed(Subscribable sub, Topic topic) {
-        ConcurrentHashMap<String, Subscribable> subs = subscribers.get(topic);
+    protected boolean isSubscribed(Subscription sub, Topic topic) {
+        ConcurrentHashMap<String, Subscription> subs = subscribers.get(topic);
         return subs != null && subs.containsKey(sub.getSubId());
     }
 
@@ -242,7 +244,7 @@ public class SubscriberExecutor extends HandlerExecutor {
      */
     @Override
     protected void shutdown() {
-        subscribers.values().forEach(subs -> subs.values().forEach(Subscribable::shutdown));
+        subscribers.values().forEach(subs -> subs.values().forEach(Subscription::end));
         subscribers.clear();
         super.shutdown();
     }

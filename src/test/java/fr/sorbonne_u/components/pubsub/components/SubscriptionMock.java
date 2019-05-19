@@ -2,17 +2,17 @@ package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
 import fr.sorbonne_u.components.pubsub.Topic;
-import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class SubscribableMock implements Subscribable {
+public class SubscriptionMock implements Subscription {
     private Message message = null;
 
     private String name;
 
-    public SubscribableMock(String name) {
+    public SubscriptionMock(String name) {
         this.name = name;
     }
 
@@ -28,7 +28,7 @@ public class SubscribableMock implements Subscribable {
     }
 
     @Override
-    public void filter(Topic topic, Predicate<Message> filter) {
+    public void filter(Predicate<Message> filter) {
         // TODO add filter
     }
 
@@ -38,21 +38,21 @@ public class SubscribableMock implements Subscribable {
     }
 
     @Override
-    public void shutdown() {
-        // TODO add shutdown
+    public void end() {
+        // TODO add end
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SubscribableMock)) return false;
-        SubscribableMock that = (SubscribableMock) o;
+        if (!(o instanceof SubscriptionMock)) return false;
+        SubscriptionMock that = (SubscriptionMock) o;
         return name.equals(that.name);
     }
 
     @Override
     public String toString() {
-        return "SubscribableMock{" +
+        return "SubscriptionMock{" +
                 ", name='" + name + '\'' +
                 '}' + " - " + hashCode();
     }

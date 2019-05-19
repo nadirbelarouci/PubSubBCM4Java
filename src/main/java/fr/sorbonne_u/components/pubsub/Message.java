@@ -2,6 +2,7 @@ package fr.sorbonne_u.components.pubsub;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -292,12 +293,12 @@ public class Message implements Serializable {
      * @see #newBuilder(String)
      */
     public static class Builder {
+        private final Map<String, Object> properties = new ConcurrentHashMap<>();
         private String id;
         private long timestamp = -1;
         private String owner;
         private Serializable content;
         private Topic topic;
-        private final Map<String, Object> properties = new ConcurrentHashMap<>();
 
 
         private Builder(Topic topic) {
@@ -305,8 +306,8 @@ public class Message implements Serializable {
             id = Message.class.getSimpleName() + "-" + UUID.randomUUID().toString();
             try {
                 owner = InetAddress.getLocalHost().toString();
-            } catch (Exception e) {
-                throw new No(e);
+            } catch (UnknownHostException e) {
+                throw new IllegalStateException(e);
             }
         }
 

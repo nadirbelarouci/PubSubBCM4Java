@@ -131,6 +131,8 @@ public class DistributedCVM
     @Override
     public void instantiateAndPublish() throws Exception {
         PubSub.newCommonPubSub(this, thisJVMURI.equals(STL));
+
+
         if (thisJVMURI.equals(STL)) {
 
             STLProfessor = Publisher.newBuilder(this).build();

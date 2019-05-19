@@ -13,13 +13,12 @@ import fr.sorbonne_u.components.pubsub.connectors.ObserverConnector;
 import fr.sorbonne_u.components.pubsub.exceptions.UnPublishPortException;
 import fr.sorbonne_u.components.pubsub.interfaces.Observer;
 import fr.sorbonne_u.components.pubsub.interfaces.PubSubService;
-import fr.sorbonne_u.components.pubsub.interfaces.Subscribable;
+import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 import fr.sorbonne_u.components.pubsub.port.PubSubInBoundPort;
 import fr.sorbonne_u.components.pubsub.port.PubSubOutBoundPort;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
@@ -27,16 +26,17 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
 /**
  * A {@code PubSub}  is the heart of the publication/subscription system.
  * <p>
- * It main role is to route requests from Publishers and Subscribers to its {@link Broker}.
+ * Its main role is to route requests from Publishers and Subscribers to its {@link Broker},
+ * It  implements all the methods of the {@code PubSubService} interface
+ * and delegates their implementations to its {@code Broker}.
+ * The component offers {@link fr.sorbonne_u.components.pubsub.interfaces.PubSubService.Offered} interface.
  * <p>
- * The {@code PubSub}  implement all the methods of the {@code PubSubService} interface
- * and delegates their implementations to its {@code PubSubInBoundPort} since
- * the component offers {@link fr.sorbonne_u.components.pubsub.interfaces.PubSubService.Offered} interface.
  * <p>
- * The {@code PubSub}  is also responsible of creating {@code Subscribable} instances
- * for each subscription, each {@code Subscribable} instance will have a {@code PubSubOutBoundPort}
+ * The {@code PubSub}  is also responsible of creating {@code Subscription} instances
+ * for each subscription, each {@code Subscription} instance will have a {@code PubSubOutBoundPort}
  * instance which is connected to a {@code SubscriberInBoundPort}
- * so it can notify the subscriber with a message.
+ * so it can notify the subscriber with a message,
+ * thus the {@code PubSub} component requires a {@link Observer.Required} interace.
  * <p>
  * Using the {@code PubSub} in a CVM:
  * The {@code PubSub}  offers a <b><i>common</i></b> {@code PubSub} instance with a default configuration,
@@ -77,20 +77,20 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  *  </pre></blockquote>
  * <p>
  * Using the {@code PubSub} in a Distributed CVM:
+ * <p>
  * The common {@code PubSub} component can be used also for a Distributed CVM,
- * however bear in mind that in a Distributed CVM only one instance of a the common {@code PubSub} component
- * among all the hosts is required, and a common {@code PubSubNode} instance for each host,
- * each {@code PubSubNode} must connect to this one unique common {@code PubSub},
- * hence, all the common {@code PubSub} clients are now {@code PubSubNode} components.
+ * however bear in mind that in a Distributed CVM only one instance of a  {@code PubSub} component
+ * among all the hosts is required, and a {@code PubSubNode} instance for each host,
+ * each {@code PubSubNode} must connect to this one unique {@code PubSub} component,
+ * hence, all the  {@code PubSub} component clients are basically {@code PubSubNode} components.
  * <p>
  * Note that the {@code Publisher} components and the {@code Subscriber} components will use the
- * common {@code PubSubNode} in-bound port to establish the connection to their
- * out-bound ports, bear in mind that they use the common {@code PubSubNode} in-bound port and
- * <b>NOT</b> the common {@code PubSub} in-bound port to establish the connection,
- * since the common {@code PubSubNode} is already connected to the common {@code PubSub}in-bound port.
+ * {@code PubSubNode} in-bound port to establish the connection to their
+ * out-bound ports, bear in mind that they use the {@code PubSubNode} in-bound port and
+ * <b>NOT</b> the {@code PubSub} in-bound port to establish the connection,
+ * since the {@code PubSubNode} is already connected to the {@code PubSub}in-bound port.
  *
  * <p>
- * We still can create a new {@code PubSub} and {@code PubSubNode} components and configured them manually.
  * Example of using the common {@code PubSub} in Distributed a CVM:
  * <blockquote><pre>
  *      // in the DistributedCVM instantiateAndPublish method
@@ -123,7 +123,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  *          super.start();
  *      }
  *  </pre></blockquote>
- * Example of using a new configured {@code PubSub} int a Distributed CVM:
+ * Example of using a new configured {@code PubSub} in a Distributed CVM:
  * <blockquote><pre>
  *      // in the DistributedCVM instantiateAndPublish method
  *      public void instantiateAndPublish() throws Exception {
@@ -177,7 +177,7 @@ import static fr.sorbonne_u.components.ports.AbstractPort.generatePortURI;
  * @see PubSubInBoundPort
  * @see PubSubOutBoundPort
  * @see Broker
- * @see Subscribable
+ * @see Subscription
  */
 @OfferedInterfaces(offered = {PubSubService.Offered.class})
 @RequiredInterfaces(required = {Observer.Required.class})
@@ -357,13 +357,13 @@ public class PubSub extends AbstractComponent implements PubSubService {
     public void subscribe(String subId, Topic topic) throws Exception {
         this.logMessage("subscribing " + subId + " to :" + topic);
 
-        this.broker.subscribe(new Subscriber(this, subId), topic);
+        this.broker.subscribe(new SubscriptionImpl(this, subId), topic);
     }
 
     @Override
     public void subscribe(String subId, Topic topic, Predicate<Message> filter) throws Exception {
         this.logMessage("subscribing with filter " + subId + " to :" + topic);
-        this.broker.subscribe(new Subscriber(this, subId), topic, filter);
+        this.broker.subscribe(new SubscriptionImpl(this, subId), topic, filter);
 
     }
 
@@ -500,34 +500,33 @@ public class PubSub extends AbstractComponent implements PubSubService {
     }
 
     /**
-     * A {@code Subscriber} or a {@code Subscribable} is class that holds all related information
+     * A {@code SubscriptionImpl} is a class that holds all related information
      * about a {@link fr.sorbonne_u.components.pubsub.components.Subscriber} component, mainly its ID,
-     * a {@code PubSubOutBoundPort} to notify the {@code Subscriber} component,
-     * the filters for each topic in a {@code ConcurrentHashMap}.
+     * a {@code PubSubOutBoundPort} to notify it and a filter
      * <p>
-     * when a Subscriber component subscriber to some topic, an instance of this class is created by the
+     * When a Subscriber component subscribe to some topic, an instance of this class is created by the
      * {@code PubSub} and routed to the broker, when instantiated this class uses
      * the Subscriber ID to establish the connection between the {@code PubSubOutBoundPort} and
      * the {@code SubscriberInBoundPort}.
      * <p>
-     * Since a {@code Subscribable} instance is manipulated by multiple threads, it must carefully
+     * Since a {@code Subscription} instance is manipulated by multiple threads, it must carefully
      * synchronize its operations, mainly in this scenario:
-     * when a {@code shutdown} is called, the PubSubOutBoundPort is unpublished and cannot be used,
-     * in the same time the {@link fr.sorbonne_u.components.pubsub.interfaces.PublisherService} executor
+     * when a {@code end} is called, the PubSubOutBoundPort is unpublished and cannot be used,
+     * in the same time the {@link PublisherExecutor} executor
      * is calling the {@link #notify} method.
-     * if the two methods {@link #notify} and {@link #shutdown} are not synchronized then an exception
+     * if the two methods {@link #notify} and {@link #end} are not synchronized then an exception
      * will occur since the port would be already unpublished.
      *
      * @see Broker
      */
-    private static class Subscriber implements Subscribable {
+    private static class SubscriptionImpl implements Subscription {
 
-        private final ConcurrentHashMap<Topic, Predicate<Message>> filters = new ConcurrentHashMap<>();
         private final PubSubOutBoundPort pubSubOutBoundPort;
         private final String subscriberInBoundPortURI;
+        private Predicate<Message> filter;
 
 
-        private Subscriber(PubSub owner, String subscriberInBoundPortURI) throws Exception {
+        private SubscriptionImpl(PubSub owner, String subscriberInBoundPortURI) throws Exception {
             this.pubSubOutBoundPort = new PubSubOutBoundPort(owner);
             owner.addPort(pubSubOutBoundPort);
             this.pubSubOutBoundPort.localPublishPort();
@@ -547,7 +546,6 @@ public class PubSub extends AbstractComponent implements PubSubService {
          * @return true if the filter is accepted
          */
         private boolean accept(Message message) {
-            Predicate<Message> filter = filters.get(message.getTopic());
             if (filter == null)
                 return true;
 
@@ -561,18 +559,19 @@ public class PubSub extends AbstractComponent implements PubSubService {
                     if (accept(message))
                         this.pubSubOutBoundPort.notify(message);
                 } catch (Exception e) {
-                    shutdown();
+                    end();
                 }
             }
 
         }
 
         @Override
-        public void filter(Topic topic, Predicate<Message> filter) {
-            this.filters.put(topic, filter);
+        public void filter(Predicate<Message> filter) {
+            this.filter = filter;
         }
 
-        public void shutdown() {
+        @Override
+        public void end() {
             synchronized (pubSubOutBoundPort) {
                 try {
                     this.pubSubOutBoundPort.doDisconnection();
