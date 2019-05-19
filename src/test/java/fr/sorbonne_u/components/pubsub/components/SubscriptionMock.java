@@ -1,7 +1,6 @@
 package fr.sorbonne_u.components.pubsub.components;
 
 import fr.sorbonne_u.components.pubsub.Message;
-import fr.sorbonne_u.components.pubsub.Topic;
 import fr.sorbonne_u.components.pubsub.interfaces.Subscription;
 
 import java.util.Objects;

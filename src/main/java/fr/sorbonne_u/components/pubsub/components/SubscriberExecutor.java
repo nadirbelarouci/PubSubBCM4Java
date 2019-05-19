@@ -99,8 +99,6 @@ public class SubscriberExecutor extends HandlerExecutor {
         // and put the subscriber in it
         subscribers.computeIfAbsent(topic, t -> new ConcurrentHashMap<>())
                 .put(sub.getSubId(), sub);
-        Predicate<Message> filter = message -> message.getString("world").equals("programmers")
-                && message.getFloat("salary") > 3000;
     }
 
     /**
