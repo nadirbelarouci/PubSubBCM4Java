@@ -140,9 +140,7 @@ public class DistributedCVM
 
             STLStudents = new ArrayList<>();
             for (int i = 0; i < 2; i++) {
-                Subscriber student = Subscriber.newBuilder(this)
-                        .setSubscriberInBoundPortURI("STL" + i)
-                        .build();
+                Subscriber student = Subscriber.newBuilder(this).build();
                 STLStudents.add(student);
             }
 
@@ -153,10 +151,7 @@ public class DistributedCVM
 
             SARStudents = new ArrayList<>();
             for (int i = 0; i < 2; i++) {
-                Subscriber student = Subscriber.newBuilder(this)
-                        .setSubscriberInBoundPortURI("SAR" + i)
-
-                        .build();
+                Subscriber student = Subscriber.newBuilder(this).build();
                 SARStudents.add(student);
             }
         }
