@@ -1,6 +1,6 @@
 # PubSubBCM4Java
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/94dc52c7545146f4beddcb67687c7771)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nadirbelarouci/PubSubBCM4Java&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/94dc52c7545146f4beddcb67687c7771)](https://app.codacy.com/project/nadirbelarouci/PubSubBCM4Java/dashboard?token=XQ5KcrU3OtkMoGV)
 
 
 A publication / subscription communication system is a system for creating, sending, receiving and consuming messages.
