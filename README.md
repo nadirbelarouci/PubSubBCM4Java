@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/94dc52c7545146f4beddcb67687c7771)](https://app.codacy.com/project/nadirbelarouci/PubSubBCM4Java/dashboard?token=XQ5KcrU3OtkMoGV)
 
+[!Docs](https://assets.readthedocs.org/static/projects/badges/passing-flat.svg)](https://nadirbelarouci.github.io/PubSubBCM4Java/)
+In order to
 
 A publication / subscription communication system is a system for creating, sending, receiving and consuming messages.
 The main part of the system is the broker who manages the transmission of messages between its clients. Clients can be either:
